@@ -93,6 +93,7 @@ class MusicLibrary:
 
     def update_library(self, lib_path: str = None):
         lib_path = lib_path or self.library_path
+        LOG.debug(f"Starting library update of: {self.library_path}")
         for root, _, files in walk(lib_path):
             album_art = None
             if isfile(join(root, 'Folder.jpg')):
@@ -126,6 +127,7 @@ class MusicLibrary:
                     continue
                 except Exception:
                     LOG.exception(abs_path)
+        LOG.debug("Updated Library")
         # TODO: Dump updated library to file
 
     @staticmethod
