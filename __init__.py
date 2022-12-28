@@ -54,23 +54,31 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def music_library(self):
         if not self._music_library:
             self._music_library = MusicLibrary(self.music_dir,
-                                               join(self.file_system.path,
-                                                    'cachefile'))
+                                               self.file_system.path)
         return self._music_library
 
     def initialize(self):
+        # TODO: add intent to update library?
         self.music_library.update_library()
 
     @ocp_search()
     def search_music(self, phrase, media_type=MediaType.GENERIC):
-        return self.search_artist(phrase, media_type) + \
+        results = self.search_artist(phrase, media_type) + \
             self.search_album(phrase, media_type) + \
             self.search_genre(phrase, media_type) + \
             self.search_track(phrase, media_type)
+        if not results and self.voc_match(phrase, 'local.voc'):
+            score = 50
+            if media_type == MediaType.MUSIC:
+                score += 20
+            results = self._tracks_to_search_results(self.music_library.tracks)
+        return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 65
         if media_type == MediaType.MUSIC:
+            score += 20
+        if self.voc_match(phrase, 'local.voc'):
             score += 20
         tracks = self.music_library.search_songs_for_artist(phrase)
         LOG.debug(f"Found {len(tracks)} artist results")
@@ -80,6 +88,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         score = 70
         if media_type == MediaType.MUSIC:
             score += 20
+        if self.voc_match(phrase, 'local.voc'):
+            score += 20
         tracks = self.music_library.search_songs_for_album(phrase)
         LOG.debug(f"Found {len(tracks)} album results")
         return self._tracks_to_search_results(tracks, score)
@@ -87,6 +97,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def search_genre(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 50
         if media_type == MediaType.MUSIC:
+            score += 20
+        if self.voc_match(phrase, 'local.voc'):
             score += 20
         tracks = self.music_library.search_songs_for_genre(phrase)
         LOG.debug(f"Found {len(tracks)} genre results")
@@ -96,6 +108,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         score = 75
         if media_type == MediaType.MUSIC:
             score += 20
+        if self.voc_match(phrase, 'local.voc'):
+            score += 20
         tracks = self.music_library.search_songs_for_track(phrase)
         LOG.debug(f"Found {len(tracks)} track results")
         return self._tracks_to_search_results(tracks, score)
@@ -103,7 +117,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
         LOG.debug(tracks)
         tracks = [{'media_type': MediaType.MUSIC,
-                   'playback': PlaybackType.AUDIO_SERVICE,
+                   'playback': PlaybackType.AUDIO,
                    'image': track.artwork if track.artwork else None,
                    'skill_icon': self._image_url,
                    'uri': track.path,

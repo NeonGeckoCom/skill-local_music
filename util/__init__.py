@@ -51,7 +51,7 @@ class Track:
 
 
 class MusicLibrary:
-    def __init__(self, library_path: str, cache_file: str):
+    def __init__(self, library_path: str, cache_path: str):
         """
         Initialize a Library object for the specified path, optionally loading
         a cached index at the specified `cache_file` path.
@@ -59,7 +59,12 @@ class MusicLibrary:
         :param cache_file: optional file to load and write library to
         """
         self.library_path = expanduser(library_path)
+        self.cache_path = expanduser(cache_path)
         self._songs = dict()
+
+    @property
+    def all_songs(self):
+        return list(self._songs.values())
 
     def search_songs_for_artist(self, artist: str) -> List[Track]:
         """
@@ -106,13 +111,17 @@ class MusicLibrary:
                     if audio_metadata:
                         meta = audio_metadata.load(abs_path)
                         image_bytes = meta.pictures[0] if meta.pictures else None
-                        # TODO: Write bytes to file and override album_art
                         album = meta.tags['album'][0]
                         artist = meta.tags['artist'][0]
                         genre = meta.tags['genre'][0]
                         title = meta.tags['title'][0]
                         track_no = meta.tags['tracknumber'][0]
                         duration_seconds = meta.streaminfo['duration']
+
+                        if image_bytes:
+                            album_art = self._write_album_art(image_bytes,
+                                                              f'{artist}_{album}')
+
                         song = Track(abs_path, title, album, artist, genre,
                                      album_art, duration_seconds * 1000,
                                      track_no)
@@ -129,6 +138,15 @@ class MusicLibrary:
                     LOG.exception(abs_path)
         LOG.debug("Updated Library")
         # TODO: Dump updated library to file
+
+    def _write_album_art(self, image_bytes: bytes, filename: str):
+        output_file = join(self.cache_path, f'{filename}.jpg')
+        if isfile(output_file):
+            return output_file
+        LOG.info(f"Wrote album art to: {output_file}")
+        with open(output_file, 'wb+') as f:
+            f.write(image_bytes)
+        return output_file
 
     @staticmethod
     def song_from_file_path(file: str, album_art: str = None) -> Track:
@@ -147,11 +165,3 @@ class MusicLibrary:
             track = None
             title = splitext(basename(file))[0]
         return Track(file, title, album, artist, artwork=album_art, track=track)
-
-
-if __name__ == "__main__":
-    lib = MusicLibrary("~/Music")
-    lib.update_library()
-    print(lib.get_songs_for_artist("Benny Goodman"))
-    print(lib.get_songs_for_album("Calling All Heroes"))
-    print(lib.get_songs_for_genre("dance"))
