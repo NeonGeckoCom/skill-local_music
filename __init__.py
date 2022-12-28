@@ -67,6 +67,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_artist(phrase)
+        LOG.debug(f"Found {len(tracks)} artist results")
         return self._tracks_to_search_results(tracks, score)
 
     @ocp_search()
@@ -75,6 +76,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_album(phrase)
+        LOG.debug(f"Found {len(tracks)} album results")
         return self._tracks_to_search_results(tracks, score)
 
     @ocp_search()
@@ -83,6 +85,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_genre(phrase)
+        LOG.debug(f"Found {len(tracks)} genre results")
         return self._tracks_to_search_results(tracks, score)
 
     @ocp_search()
@@ -91,6 +94,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_track(phrase)
+        LOG.debug(f"Found {len(tracks)} track results")
         return self._tracks_to_search_results(tracks, score)
 
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
