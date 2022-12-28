@@ -27,7 +27,7 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from typing import List
-from os.path import join
+from os.path import join, dirname
 
 from ovos_plugin_common_play import MediaType, PlaybackType
 from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
@@ -44,8 +44,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
         self._music_library = None
-        # TODO: Better local image url
-        self._image_url = "https://freemusicarchive.org/legacy/fma-smaller.jpg"
+        self._image_url = 'file:/' + join(dirname(__file__), 'music-solid.svg')
 
     @property
     def music_dir(self):
@@ -105,7 +104,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         LOG.debug(tracks)
         tracks = [{'media_type': MediaType.MUSIC,
                    'playback': PlaybackType.AUDIO,
-                   'image': track.artwork,
+                   'image': f'file:/{track.artwork}',
                    'skill_icon': self._image_url,
                    'uri': f'file:/{track.path}',
                    'title': track.title,
