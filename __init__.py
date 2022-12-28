@@ -44,7 +44,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
         self._music_library = None
-        self._image_url = None
+        # TODO: Better local image url
+        self._image_url = "https://freemusicarchive.org/legacy/fma-smaller.jpg"
 
     @property
     def music_dir(self):
@@ -106,7 +107,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'playback': PlaybackType.AUDIO,
                    'image': track.artwork,
                    'skill_icon': self._image_url,
-                   'uri': track.path,
+                   'uri': f'file:/{track.path}',
                    'title': track.title,
                    'artist': track.artist,
                    'length': track.duration_ms,
