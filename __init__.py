@@ -44,7 +44,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
         self._music_library = None
-        self._image_url = 'file:/' + join(dirname(__file__), 'music-solid.svg')
+        self._image_url = 'file:/' + join(dirname(__file__), 'ui/music-solid.svg')
 
     @property
     def music_dir(self):
