@@ -104,9 +104,9 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         LOG.debug(tracks)
         tracks = [{'media_type': MediaType.MUSIC,
                    'playback': PlaybackType.AUDIO,
-                   'image': f'file:/{track.artwork}',
+                   'image': track.artwork if track.artwork else None,
                    'skill_icon': self._image_url,
-                   'uri': f'file:/{track.path}',
+                   'uri': track.path,
                    'title': track.title,
                    'artist': track.artist,
                    'length': track.duration_ms,
