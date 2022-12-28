@@ -1,0 +1,109 @@
+# NEON AI (TM) SOFTWARE, Software Development Kit & Application Framework
+# All trademark and other rights reserved by their respective owners
+# Copyright 2008-2022 Neongecko.com Inc.
+# Contributors: Daniel McKnight, Guy Daniels, Elon Gasper, Richard Leeds,
+# Regina Bloomstine, Casimiro Ferreira, Andrii Pernatii, Kirill Hrymailo
+# BSD-3 License
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS;  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+from typing import List
+from os.path import join
+
+from ovos_plugin_common_play import MediaType, PlaybackType
+from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
+    ocp_search
+from ovos_utils.log import LOG
+
+from .util import MusicLibrary, Track
+
+
+class LocalMusicSkill(OVOSCommonPlaybackSkill):
+    def __init__(self):
+        super(LocalMusicSkill, self).__init__()
+        self.supported_media = [MediaType.MUSIC,
+                                MediaType.AUDIO,
+                                MediaType.GENERIC]
+        self._music_library = None
+        self._image_url = None
+
+    @property
+    def music_dir(self):
+        return self.settings.get('music_dir') or '/media'
+
+    @property
+    def music_library(self):
+        if not self._music_library:
+            self._music_library = MusicLibrary(self.music_dir,
+                                               join(self.file_system.path,
+                                                    'cachefile'))
+        return self._music_library
+
+    def initialize(self):
+        self.music_library.update_library()
+
+    @ocp_search()
+    def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
+        score = 20
+        if media_type == MediaType.MUSIC:
+            score += 20
+        tracks = self.music_library.search_songs_for_artist(phrase)
+        return self._tracks_to_search_results(tracks, score)
+
+    @ocp_search()
+    def search_album(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
+        score = 15
+        if media_type == MediaType.MUSIC:
+            score += 20
+        tracks = self.music_library.search_songs_for_album(phrase)
+        return self._tracks_to_search_results(tracks, score)
+
+    @ocp_search()
+    def search_genre(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
+        score = 10
+        if media_type == MediaType.MUSIC:
+            score += 20
+        tracks = self.music_library.search_songs_for_genre(phrase)
+        return self._tracks_to_search_results(tracks, score)
+
+    @ocp_search()
+    def search_track(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
+        score = 25
+        if media_type == MediaType.MUSIC:
+            score += 20
+        tracks = self.music_library.search_songs_for_track(phrase)
+        return self._tracks_to_search_results(tracks, score)
+
+    def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
+        return [{'media_type': MediaType.MUSIC,
+                 'playback': PlaybackType.AUDIO,
+                 'image': track.artwork,
+                 'skill_icon': self._image_url,
+                 'uri': track.path,
+                 'title': track.title,
+                 'artist': track.artist,
+                 'length': track.duration_ms,
+                 'match_confidence': score} for track in tracks]
+
+
+def create_skill():
+    return LocalMusicSkill()
