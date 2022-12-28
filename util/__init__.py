@@ -27,7 +27,10 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from typing import List
 
-import audio_metadata
+try:
+    import audio_metadata
+except Exception:
+    audio_metadata = None
 
 from dataclasses import dataclass
 from os import walk
@@ -99,19 +102,24 @@ class MusicLibrary:
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
                 try:
-                    meta = audio_metadata.load(abs_path)
-                    image_bytes = meta.pictures[0] if meta.pictures else None
-                    # TODO: Write bytes to file and override album_art
-                    album = meta.tags['album'][0]
-                    artist = meta.tags['artist'][0]
-                    genre = meta.tags['genre'][0]
-                    title = meta.tags['title'][0]
-                    track_no = meta.tags['tracknumber'][0]
-                    duration_seconds = meta.streaminfo['duration']
-                    song = Track(abs_path, title, album, artist, genre, album_art,
-                                 duration_seconds * 1000, track_no)
-                    LOG.debug(song)
-                    self._songs[abs_path] = song
+                    if audio_metadata:
+                        meta = audio_metadata.load(abs_path)
+                        image_bytes = meta.pictures[0] if meta.pictures else None
+                        # TODO: Write bytes to file and override album_art
+                        album = meta.tags['album'][0]
+                        artist = meta.tags['artist'][0]
+                        genre = meta.tags['genre'][0]
+                        title = meta.tags['title'][0]
+                        track_no = meta.tags['tracknumber'][0]
+                        duration_seconds = meta.streaminfo['duration']
+                        song = Track(abs_path, title, album, artist, genre,
+                                     album_art, duration_seconds * 1000,
+                                     track_no)
+                        LOG.debug(song)
+                        self._songs[abs_path] = song
+                    else:
+                        self._songs[abs_path] = \
+                            self.song_from_file_path(abs_path, album_art)
                 except audio_metadata.UnsupportedFormat:
                     self._songs[abs_path] = self.song_from_file_path(abs_path,
                                                                      album_art)
