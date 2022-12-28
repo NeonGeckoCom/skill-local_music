@@ -44,7 +44,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
         self._music_library = None
-        self._image_url = 'file:/' + join(dirname(__file__), 'ui/music-solid.svg')
+        self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
 
     @property
     def music_dir(self):
@@ -69,7 +69,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             self.search_track(phrase, media_type)
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
-        score = 20
+        score = 65
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_artist(phrase)
@@ -77,7 +77,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def search_album(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
-        score = 15
+        score = 70
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_album(phrase)
@@ -85,7 +85,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def search_genre(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
-        score = 10
+        score = 50
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_genre(phrase)
@@ -93,7 +93,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def search_track(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
-        score = 25
+        score = 75
         if media_type == MediaType.MUSIC:
             score += 20
         tracks = self.music_library.search_songs_for_track(phrase)
