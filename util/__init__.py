@@ -47,7 +47,7 @@ class Track:
     genre: str = None
     artwork: str = None
     duration_ms: float = 0
-    track: int = None
+    track: int = 0
 
 
 class MusicLibrary:

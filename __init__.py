@@ -103,7 +103,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
         LOG.debug(tracks)
         tracks = [{'media_type': MediaType.MUSIC,
-                   'playback': PlaybackType.AUDIO,
+                   'playback': PlaybackType.AUDIO_SERVICE,
                    'image': track.artwork if track.artwork else None,
                    'skill_icon': self._image_url,
                    'uri': track.path,
