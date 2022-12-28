@@ -33,8 +33,8 @@ except Exception:
     audio_metadata = None
 
 from dataclasses import dataclass
-from os import walk
-from os.path import join, expanduser, isfile, dirname, basename, splitext
+from os import walk, makedirs
+from os.path import join, expanduser, isfile, dirname, basename, splitext, isdir
 from ovos_utils.log import LOG
 
 
@@ -56,10 +56,12 @@ class MusicLibrary:
         Initialize a Library object for the specified path, optionally loading
         a cached index at the specified `cache_file` path.
         :param library_path: path to scan for music files
-        :param cache_file: optional file to load and write library to
+        :param cache_path: path to cache directory for library and temp files
         """
         self.library_path = expanduser(library_path)
         self.cache_path = expanduser(cache_path)
+        if not isdir(self.cache_path):
+            makedirs(self.cache_path)
         self._songs = dict()
 
     @property
@@ -110,7 +112,7 @@ class MusicLibrary:
                 try:
                     if audio_metadata:
                         meta = audio_metadata.load(abs_path)
-                        image_bytes = meta.pictures[0] if meta.pictures else None
+                        image_bytes = meta.pictures[0].data if meta.pictures else None
                         album = meta.tags['album'][0]
                         artist = meta.tags['artist'][0]
                         genre = meta.tags['genre'][0]
