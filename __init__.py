@@ -62,6 +62,12 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         self.music_library.update_library()
 
     @ocp_search()
+    def search_music(self, phrase, media_type=MediaType.GENERIC):
+        return self.search_artist(phrase, media_type) + \
+            self.search_album(phrase, media_type) + \
+            self.search_genre(phrase, media_type) + \
+            self.search_track(phrase, media_type)
+
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 20
         if media_type == MediaType.MUSIC:
@@ -70,7 +76,6 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         LOG.debug(f"Found {len(tracks)} artist results")
         return self._tracks_to_search_results(tracks, score)
 
-    @ocp_search()
     def search_album(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 15
         if media_type == MediaType.MUSIC:
@@ -79,7 +84,6 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         LOG.debug(f"Found {len(tracks)} album results")
         return self._tracks_to_search_results(tracks, score)
 
-    @ocp_search()
     def search_genre(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 10
         if media_type == MediaType.MUSIC:
@@ -88,7 +92,6 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         LOG.debug(f"Found {len(tracks)} genre results")
         return self._tracks_to_search_results(tracks, score)
 
-    @ocp_search()
     def search_track(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
         score = 25
         if media_type == MediaType.MUSIC:
@@ -98,15 +101,18 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
-        return [{'media_type': MediaType.MUSIC,
-                 'playback': PlaybackType.AUDIO,
-                 'image': track.artwork,
-                 'skill_icon': self._image_url,
-                 'uri': track.path,
-                 'title': track.title,
-                 'artist': track.artist,
-                 'length': track.duration_ms,
-                 'match_confidence': score} for track in tracks]
+        LOG.debug(tracks)
+        tracks = [{'media_type': MediaType.MUSIC,
+                   'playback': PlaybackType.AUDIO,
+                   'image': track.artwork,
+                   'skill_icon': self._image_url,
+                   'uri': track.path,
+                   'title': track.title,
+                   'artist': track.artist,
+                   'length': track.duration_ms,
+                   'match_confidence': score} for track in tracks]
+        LOG.debug(tracks)
+        return tracks
 
 
 def create_skill():
