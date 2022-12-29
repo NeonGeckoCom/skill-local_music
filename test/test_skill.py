@@ -93,11 +93,16 @@ class TestSkill(unittest.TestCase):
         # Test search methods
         self.assertEqual(lib.search_songs_for_artist("Artist 1 test"),
                          lib.search_songs_for_artist("artist 1"))
-        self.assertEqual(set(lib.search_songs_for_artist('artist 1')),
-                         {'Track one', 'Track 2', 'Track 1', 'Track two'})
-        self.assertEqual(lib.search_songs_for_album("album 2"), ['Track 1',
-                                                                 'Track two'])
-        self.assertEqual(lib.search_songs_for_track('track one'), ['Track one'])
+        self.assertEqual(len(lib.search_songs_for_artist('artist 1')), 4)
+
+        album_2 = lib.search_songs_for_album("album 2")
+        self.assertEqual(len(album_2), 2)
+        self.assertEqual(album_2[0].title, "Track 1")
+        self.assertEqual(album_2[1].title, "Track two")
+
+        track_1 = lib.search_songs_for_track('track one')
+        self.assertEqual(len(track_1), 1)
+        self.assertEqual(track_1[0].title, "Track one")
 
     # TODO: OCP Search method tests
 
