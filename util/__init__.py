@@ -26,9 +26,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import json
 import hashlib
-
+import pickle
 from typing import List
 
 try:
@@ -67,11 +66,11 @@ class MusicLibrary:
         if not isdir(self.cache_path):
             makedirs(self.cache_path)
         self._songs = dict()
-        self._db_file = join(self.cache_path, "library.json")
+        self._db_file = join(self.cache_path, "library.pickle")
         try:
             if isfile(self._db_file):
                 with open(self._db_file) as f:
-                    self._songs = json.load(f)
+                    self._songs = pickle.load(f)
         except Exception as e:
             LOG.exception(e)
 
@@ -153,8 +152,11 @@ class MusicLibrary:
                 except Exception:
                     LOG.exception(abs_path)
         LOG.debug("Updated Library")
-        with open(self._db_file, 'w+') as f:
-            json.dump(self._songs, f)
+        try:
+            with open(self._db_file, 'w+') as f:
+                pickle.dump(self._songs, f)
+        except Exception as e:
+            LOG.exception(e)
 
     def _write_album_art(self, image_bytes: bytes, filename: str):
         output_file = join(self.cache_path, f'{filename}.jpg')
