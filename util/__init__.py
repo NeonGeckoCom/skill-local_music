@@ -25,6 +25,10 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import json
+import hashlib
+
 from typing import List
 
 try:
@@ -63,6 +67,10 @@ class MusicLibrary:
         if not isdir(self.cache_path):
             makedirs(self.cache_path)
         self._songs = dict()
+        self._db_file = join(self.cache_path, "library.json")
+        if isfile(self._db_file):
+            with open(self._db_file) as f:
+                self._songs = json.load(f)
 
     @property
     def all_songs(self):
@@ -106,6 +114,8 @@ class MusicLibrary:
             if isfile(join(root, 'Folder.jpg')):
                 album_art = join(root, "Folder.jpg")
             for file in files:
+                if file == 'Folder.jpg':
+                    continue
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
@@ -121,8 +131,9 @@ class MusicLibrary:
                         duration_seconds = meta.streaminfo['duration']
 
                         if image_bytes:
+                            filename = hashlib.md5(image_bytes)
                             album_art = self._write_album_art(image_bytes,
-                                                              f'{artist}_{album}')
+                                                              filename)
 
                         song = Track(abs_path, title, album, artist, genre,
                                      album_art, duration_seconds * 1000,
@@ -139,7 +150,8 @@ class MusicLibrary:
                 except Exception:
                     LOG.exception(abs_path)
         LOG.debug("Updated Library")
-        # TODO: Dump updated library to file
+        with open(self._db_file, 'w+') as f:
+            json.dump(self._songs, f)
 
     def _write_album_art(self, image_bytes: bytes, filename: str):
         output_file = join(self.cache_path, f'{filename}.jpg')
@@ -163,6 +175,8 @@ class MusicLibrary:
             if not track.isnumeric():
                 track = None
                 title = f'{track} {title}'
+            else:
+                track = int(track)
         except ValueError:
             track = None
             title = splitext(basename(file))[0]
