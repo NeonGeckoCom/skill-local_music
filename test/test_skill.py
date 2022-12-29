@@ -60,6 +60,7 @@ class TestSkill(unittest.TestCase):
         cls.skill.file_system.path = cls.test_fs
         cls.skill._init_settings()
 
+        cls.skill._music_library = None  # Patch initialize call during load
         cls.skill.settings['music_dir'] = join(dirname(__file__), "test_music")
         cls.skill.initialize()
 
