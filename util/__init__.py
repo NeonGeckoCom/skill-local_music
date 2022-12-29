@@ -131,7 +131,7 @@ class MusicLibrary:
                         duration_seconds = meta.streaminfo['duration']
 
                         if image_bytes:
-                            filename = hashlib.md5(image_bytes)
+                            filename = hashlib.md5(image_bytes).hexdigest()
                             album_art = self._write_album_art(image_bytes,
                                                               filename)
 
