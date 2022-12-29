@@ -68,9 +68,12 @@ class MusicLibrary:
             makedirs(self.cache_path)
         self._songs = dict()
         self._db_file = join(self.cache_path, "library.json")
-        if isfile(self._db_file):
-            with open(self._db_file) as f:
-                self._songs = json.load(f)
+        try:
+            if isfile(self._db_file):
+                with open(self._db_file) as f:
+                    self._songs = json.load(f)
+        except Exception as e:
+            LOG.exception(e)
 
     @property
     def all_songs(self):
