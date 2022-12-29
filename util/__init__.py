@@ -52,6 +52,8 @@ class Track:
     duration_ms: float = 0
     track: int = 0
 
+# TODO: Replace w/ https://github.com/OpenVoiceOS/ovos-ocp-audio-plugin/pull/30
+
 
 class MusicLibrary:
     def __init__(self, library_path: str, cache_path: str):
