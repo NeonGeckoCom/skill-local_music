@@ -30,15 +30,16 @@ import hashlib
 import pickle
 from typing import List
 
+from dataclasses import dataclass
+from os import walk, makedirs, remove
+from os.path import join, expanduser, isfile, dirname, basename, splitext, isdir
+from ovos_utils.log import LOG
+
 try:
     import audio_metadata
 except Exception:
+    LOG.info(f"audio_metadata package not available")
     audio_metadata = None
-
-from dataclasses import dataclass
-from os import walk, makedirs
-from os.path import join, expanduser, isfile, dirname, basename, splitext, isdir
-from ovos_utils.log import LOG
 
 
 @dataclass
@@ -75,6 +76,7 @@ class MusicLibrary:
                     self._songs = pickle.load(f)
         except Exception as e:
             LOG.exception(e)
+            remove(self._db_file)
 
     @property
     def all_songs(self):
