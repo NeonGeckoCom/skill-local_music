@@ -71,7 +71,7 @@ class MusicLibrary:
         self._db_file = join(self.cache_path, "library.pickle")
         try:
             if isfile(self._db_file):
-                with open(self._db_file) as f:
+                with open(self._db_file, 'rb') as f:
                     self._songs = pickle.load(f)
         except Exception as e:
             LOG.exception(e)
@@ -155,7 +155,7 @@ class MusicLibrary:
                     LOG.exception(abs_path)
         LOG.debug("Updated Library")
         try:
-            with open(self._db_file, 'w+') as f:
+            with open(self._db_file, 'wb+') as f:
                 pickle.dump(self._songs, f)
         except Exception as e:
             LOG.exception(e)
