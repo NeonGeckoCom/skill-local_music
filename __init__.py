@@ -126,7 +126,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'artist': track.artist,
                    'length': track.duration_ms,
                    'match_confidence': score} for track in tracks]
-        LOG.debug(tracks[0])
+        LOG.debug(tracks)
         return tracks
 
 
