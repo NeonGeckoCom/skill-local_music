@@ -71,7 +71,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             score = 50
             if media_type == MediaType.MUSIC:
                 score += 20
-            results = self._tracks_to_search_results(self.music_library.all_songs)
+            results = self._tracks_to_search_results(
+                self.music_library.all_songs, score)
         return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
@@ -125,7 +126,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'artist': track.artist,
                    'length': track.duration_ms,
                    'match_confidence': score} for track in tracks]
-        LOG.debug(tracks)
+        LOG.debug(tracks[0])
         return tracks
 
 
