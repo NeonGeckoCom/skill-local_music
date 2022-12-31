@@ -28,6 +28,7 @@
 
 from typing import List
 from os.path import join, dirname
+from random import sample
 
 from ovos_plugin_common_play import MediaType, PlaybackType
 from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
@@ -73,8 +74,11 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                 score += 20
             else:
                 LOG.debug("No media type requested")
-            results = self._tracks_to_search_results(
-                self.music_library.all_songs, score)
+            all_songs = self.music_library.all_songs
+            if len(all_songs) > 50:
+                all_songs = sample(self.music_library.all_songs, 50)
+            results = self._tracks_to_search_results(all_songs, score)
+            LOG.debug(f"Returning all songs ({len(results)} with score={score}")
         return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
