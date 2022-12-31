@@ -68,9 +68,11 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             self.search_genre(phrase, media_type) + \
             self.search_track(phrase, media_type)
         if not results and self.voc_match(phrase, 'local.voc'):
-            score = 50
+            score = 60
             if media_type == MediaType.MUSIC:
                 score += 20
+            else:
+                LOG.debug("No media type requested")
             results = self._tracks_to_search_results(
                 self.music_library.all_songs, score)
         return results
@@ -116,7 +118,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
-        LOG.debug(tracks)
+        # LOG.debug(tracks)
         tracks = [{'media_type': MediaType.MUSIC,
                    'playback': PlaybackType.AUDIO,
                    'image': track.artwork if track.artwork else None,
@@ -126,7 +128,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'artist': track.artist,
                    'length': track.duration_ms,
                    'match_confidence': score} for track in tracks]
-        LOG.debug(tracks)
+        # LOG.debug(tracks)
         return tracks
 
 
