@@ -129,7 +129,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'playback': PlaybackType.AUDIO,
                    'image': track.artwork if track.artwork else None,
                    'skill_icon': self._image_url,
-                   'uri': f'file://{track.path}',
+                   'uri': track.path,
                    'title': track.title,
                    'artist': track.artist,
                    'length': track.duration_ms,
