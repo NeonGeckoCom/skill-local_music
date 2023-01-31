@@ -120,6 +120,7 @@ class MusicLibrary:
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
+                meta = None
                 try:
                     meta = ovos_ocp_files_plugin.load(abs_path)
                     image_bytes = meta.pictures[0].data if meta.pictures else None
@@ -143,9 +144,12 @@ class MusicLibrary:
                 except ovos_ocp_files_plugin.UnsupportedFormat:
                     self._songs[abs_path] = self.song_from_file_path(abs_path,
                                                                      album_art)
-                    continue
-                except Exception:
-                    LOG.exception(abs_path)
+                except Exception as e:
+                    LOG.exception(f"{abs_path} encountered error: {e}")
+                    if meta:
+                        LOG.info(f"tags={meta.tags}")
+                    self._songs[abs_path] = self.song_from_file_path(abs_path,
+                                                                     album_art)
         LOG.debug("Updated Library")
         try:
             with open(self._db_file, 'wb') as f:
