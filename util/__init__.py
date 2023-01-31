@@ -126,7 +126,7 @@ class MusicLibrary:
                     image_bytes = meta.pictures[0].data if meta.pictures else None
                     album = meta.tags['album'][0]
                     artist = meta.tags['artist'][0]
-                    genre = meta.tags['genre'][0]
+                    genre = meta.tags.get('genre', [None])[0]  # Optional in MP4
                     title = meta.tags['title'][0]
                     track_no = meta.tags['tracknumber'][0]
                     duration_seconds = meta.streaminfo['duration']
