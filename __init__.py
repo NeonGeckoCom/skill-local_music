@@ -54,6 +54,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     @property
     def music_library(self):
         if not self._music_library:
+            LOG.info(f"Initializing music library at: {self.music_dir}")
             self._music_library = MusicLibrary(self.music_dir,
                                                self.file_system.path)
         return self._music_library
@@ -78,7 +79,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             if len(all_songs) > 50:
                 all_songs = sample(self.music_library.all_songs, 50)
             results = self._tracks_to_search_results(all_songs, score)
-            LOG.debug(f"Returning all songs ({len(results)}) with score={score}")
+            LOG.debug(f"Returning all songs with score={score}")
+        LOG.info(f"Returning {len(results)} results")  # conf 65
         return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
