@@ -178,7 +178,7 @@ class MusicLibrary:
         try:
             track, title = splitext(basename(file))[0].split(' ', 1)
             if not track.isnumeric():
-                track = None
+                track = 0
                 title = f'{track} {title}'
             else:
                 track = int(track)
