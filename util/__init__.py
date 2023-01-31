@@ -137,6 +137,14 @@ class MusicLibrary:
                         album_art = self._write_album_art(image_bytes,
                                                           filename)
 
+                    if not isinstance(track_no, int):
+                        LOG.debug(f"Handling non-int track_no: {track_no}")
+                        if track_no.isnumeric():
+                            track_no = int(track_no)
+                        else:
+                            LOG.warning(f"Non-numeric track number: {track_no}")
+                            track_no = 0
+
                     song = Track(abs_path, title, album, artist, genre,
                                  album_art, duration_seconds * 1000,
                                  track_no)
