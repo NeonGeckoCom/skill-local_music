@@ -80,7 +80,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                 all_songs = sample(self.music_library.all_songs, 50)
             results = self._tracks_to_search_results(all_songs, score)
             LOG.debug(f"Returning all songs with score={score}")
-        LOG.info(f"Returning {len(results)} results")
+        LOG.info(f"Returning {len(results)} results")  # conf 65
         return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:
@@ -129,7 +129,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'playback': PlaybackType.AUDIO,
                    'image': track.artwork if track.artwork else None,
                    'skill_icon': self._image_url,
-                   'uri': f'file://{track.path}',
+                   'uri': f'file//{track.path}',
                    'title': track.title,
                    'artist': track.artist,
                    'length': track.duration_ms,
