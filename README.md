@@ -22,10 +22,10 @@ Artist 2
 ```
 
 ## Examples
-- play local music
-- play music by Daft Punk
-- play the black album
-- play stressed out by twenty one pilots
+- Play local music.
+- Play music by Daft Punk.
+- Play the black album.
+- Play Stressed Out by Twenty One Pilots.
 
 ## Contact Support
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)

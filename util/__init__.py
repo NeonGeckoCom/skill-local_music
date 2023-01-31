@@ -29,17 +29,12 @@
 import hashlib
 import pickle
 from typing import List
+import ovos_ocp_files_plugin
 
 from dataclasses import dataclass
 from os import walk, makedirs, remove
 from os.path import join, expanduser, isfile, dirname, basename, splitext, isdir
 from ovos_utils.log import LOG
-
-try:
-    import audio_metadata
-except Exception:
-    LOG.info(f"audio_metadata package not available")
-    audio_metadata = None
 
 
 @dataclass
@@ -125,39 +120,48 @@ class MusicLibrary:
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
+                meta = None
                 try:
-                    if audio_metadata:
-                        meta = audio_metadata.load(abs_path)
-                        image_bytes = meta.pictures[0].data if meta.pictures else None
-                        album = meta.tags['album'][0]
-                        artist = meta.tags['artist'][0]
-                        genre = meta.tags['genre'][0]
-                        title = meta.tags['title'][0]
-                        track_no = meta.tags['tracknumber'][0]
-                        duration_seconds = meta.streaminfo['duration']
+                    meta = ovos_ocp_files_plugin.load(abs_path)
+                    image_bytes = meta.pictures[0].data if meta.pictures else None
+                    album = meta.tags['album'][0]
+                    artist = meta.tags['artist'][0]
+                    genre = meta.tags['genre'][0] if 'genre' in meta.tags \
+                        else None  # Handle missing genre tag
+                    title = meta.tags['title'][0]
+                    track_no = meta.tags['tracknumber'][0]
+                    duration_seconds = meta.streaminfo['duration']
 
-                        if image_bytes:
-                            filename = hashlib.md5(image_bytes).hexdigest()
-                            album_art = self._write_album_art(image_bytes,
-                                                              filename)
+                    if image_bytes:
+                        filename = hashlib.md5(image_bytes).hexdigest()
+                        album_art = self._write_album_art(image_bytes,
+                                                          filename)
 
-                        song = Track(abs_path, title, album, artist, genre,
-                                     album_art, duration_seconds * 1000,
-                                     track_no)
-                        LOG.debug(song)
-                        self._songs[abs_path] = song
-                    else:
-                        self._songs[abs_path] = \
-                            self.song_from_file_path(abs_path, album_art)
-                except audio_metadata.UnsupportedFormat:
+                    if not isinstance(track_no, int):
+                        LOG.debug(f"Handling non-int track_no: {track_no}")
+                        if track_no.isnumeric():
+                            track_no = int(track_no)
+                        else:
+                            LOG.warning(f"Non-numeric track number: {track_no}")
+                            track_no = 0
+
+                    song = Track(abs_path, title, album, artist, genre,
+                                 album_art, duration_seconds * 1000,
+                                 track_no)
+                    LOG.debug(song)
+                    self._songs[abs_path] = song
+                except ovos_ocp_files_plugin.UnsupportedFormat:
                     self._songs[abs_path] = self.song_from_file_path(abs_path,
                                                                      album_art)
-                    continue
-                except Exception:
-                    LOG.exception(abs_path)
+                except Exception as e:
+                    LOG.exception(f"{abs_path} encountered error: {e}")
+                    if meta:
+                        LOG.info(f"tags={meta.tags}")
+                    self._songs[abs_path] = self.song_from_file_path(abs_path,
+                                                                     album_art)
         LOG.debug("Updated Library")
         try:
-            with open(self._db_file, 'wb+') as f:
+            with open(self._db_file, 'wb') as f:
                 pickle.dump(self._songs, f)
         except Exception as e:
             LOG.exception(e)
@@ -182,7 +186,7 @@ class MusicLibrary:
         try:
             track, title = splitext(basename(file))[0].split(' ', 1)
             if not track.isnumeric():
-                track = None
+                track = 0
                 title = f'{track} {title}'
             else:
                 track = int(track)
