@@ -81,13 +81,14 @@ class TestSkill(unittest.TestCase):
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
 
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
-        self.assertTrue(os.path.isdir(self.skill.music_dir))
+        self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
 
     def test_music_library(self):
         lib = self.skill.music_library
-        self.assertEqual(lib.library_path, self.skill.music_dir)
-        self.assertTrue(os.path.isdir(lib.library_path))
+        self.assertIn(self.skill.music_dir, lib.library_paths)
+        for lib_path in lib.library_paths:
+            self.assertTrue(os.path.isdir(lib_path), lib_path)
         self.assertTrue(os.path.isdir(lib.cache_path))
 
         # Test search methods
@@ -103,6 +104,12 @@ class TestSkill(unittest.TestCase):
         track_1 = lib.search_songs_for_track('track one')
         self.assertEqual(len(track_1), 1)
         self.assertEqual(track_1[0].title, "Track one")
+
+    def test_download_demo_tracks(self):
+        test_dir = join(dirname(__file__), "demo_test")
+        self.skill._demo_dir = test_dir
+        self.skill._download_demo_tracks()
+        self.assertTrue(os.path.isdir(test_dir))
 
     # TODO: OCP Search method tests
 

@@ -59,7 +59,7 @@ class MusicLibrary:
         :param library_path: path to scan for music files
         :param cache_path: path to cache directory for library and temp files
         """
-        self.library_path = expanduser(library_path)
+        self.library_paths = [expanduser(library_path)]
         self.cache_path = expanduser(cache_path)
         if not isdir(self.cache_path):
             makedirs(self.cache_path)
@@ -108,8 +108,8 @@ class MusicLibrary:
                 if song.title and song.title.lower() in track.lower()]
 
     def update_library(self, lib_path: str = None):
-        lib_path = lib_path or self.library_path
-        LOG.debug(f"Starting library update of: {self.library_path}")
+        lib_path = lib_path or self.library_paths[0]
+        LOG.debug(f"Starting library update of: {lib_path}")
         for root, _, files in walk(lib_path):
             album_art = None
             if isfile(join(root, 'Folder.jpg')):
@@ -142,8 +142,14 @@ class MusicLibrary:
                         if track_no.isnumeric():
                             track_no = int(track_no)
                         else:
-                            LOG.warning(f"Non-numeric track number: {track_no}")
-                            track_no = 0
+                            if track_no.split('/')[0].isnumeric():
+                                LOG.debug(f"Parsing track_no as int:"
+                                          f" {track_no}")
+                                track_no = int(track_no.split('/')[0])
+                            else:
+                                LOG.warning(f"Non-numeric track number:"
+                                            f" {track_no}")
+                                track_no = 0
 
                     song = Track(abs_path, title, album, artist, genre,
                                  album_art, duration_seconds * 1000,

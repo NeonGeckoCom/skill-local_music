@@ -25,9 +25,9 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+from os import makedirs
 from typing import List
-from os.path import join, dirname
+from os.path import join, dirname, expanduser, isdir
 from random import sample
 
 from ovos_plugin_common_play import MediaType, PlaybackType
@@ -36,6 +36,7 @@ from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
 from ovos_utils import classproperty
 from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
+from ovos_utils.xdg_utils import xdg_cache_home
 
 from .util import MusicLibrary, Track
 
@@ -48,6 +49,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.GENERIC]
         self._music_library = None
         self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
+        self._demo_dir = join(expanduser(xdg_cache_home()), "neon",
+                              "demo_music")
 
     @classproperty
     def runtime_requirements(self):
@@ -62,8 +65,13 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                    no_gui_fallback=True)
 
     @property
+    def demo_url(self):
+        default_url = "https://2222.us/app/files/neon_music/music.zip"
+        return self.settings.get("demo_url", default_url)
+
+    @property
     def music_dir(self):
-        return self.settings.get('music_dir') or '/media'
+        return expanduser(self.settings.get('music_dir') or "/media")
 
     @property
     def music_library(self):
@@ -75,7 +83,18 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
 
     def initialize(self):
         # TODO: add intent to update library?
-        self.music_library.update_library()
+        if self.music_dir and isdir(self.music_dir):
+            LOG.debug(f"Load configured directory: {self.music_dir}")
+            self.music_library.update_library(self.music_dir)
+        user_dir = expanduser("~/Music")
+        if isdir(user_dir):
+            LOG.debug(f"Load default directory: {self.music_dir}")
+            self.music_library.update_library(user_dir)
+        if self.demo_url and not isdir(self._demo_dir):
+            LOG.info(f"Downloading Demo Music from: {self.demo_url}")
+            self._download_demo_tracks()
+        if isdir(self._demo_dir):
+            self.music_library.update_library(self._demo_dir)
 
     @ocp_search()
     def search_music(self, phrase, media_type=MediaType.GENERIC):
@@ -139,6 +158,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
 
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
         # LOG.debug(tracks)
+        # TODO: Lower confidence if path is in demo dir
         tracks = [{'media_type': MediaType.MUSIC,
                    'playback': PlaybackType.AUDIO,
                    'image': track.artwork if track.artwork else None,
@@ -150,6 +170,10 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'match_confidence': score} for track in tracks]
         # LOG.debug(tracks)
         return tracks
+
+    def _download_demo_tracks(self):
+        from ovos_skill_installer import download_extract_zip
+        download_extract_zip(self.demo_url, self._demo_dir)
 
 
 def create_skill():
