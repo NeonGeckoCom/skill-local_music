@@ -33,7 +33,9 @@ from random import sample
 from ovos_plugin_common_play import MediaType, PlaybackType
 from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill, \
     ocp_search
+from ovos_utils import classproperty
 from ovos_utils.log import LOG
+from ovos_utils.process_utils import RuntimeRequirements
 
 from .util import MusicLibrary, Track
 
@@ -46,6 +48,18 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                 MediaType.GENERIC]
         self._music_library = None
         self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
+
+    @classproperty
+    def runtime_requirements(self):
+        return RuntimeRequirements(network_before_load=False,
+                                   internet_before_load=False,
+                                   gui_before_load=False,
+                                   requires_internet=False,
+                                   requires_network=False,
+                                   requires_gui=False,
+                                   no_internet_fallback=True,
+                                   no_network_fallback=True,
+                                   no_gui_fallback=True)
 
     @property
     def music_dir(self):
