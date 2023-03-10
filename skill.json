@@ -15,6 +15,7 @@
     "systemDeps": false,
     "requirements": {
         "python": [
+            "id3parse~=0.1",
             "ovos-ocp-files-plugin~=0.13",
             "ovos-plugin-common-play~=0.0",
             "ovos-skill-installer~=0.0.5",
