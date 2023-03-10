@@ -33,8 +33,6 @@ import pytest
 from os import mkdir
 from os.path import dirname, join, exists
 from mock import Mock
-from mycroft_bus_client import Message
-from ovos_plugin_common_play import MediaType
 from ovos_utils.messagebus import FakeBus
 
 from mycroft.skills.skill_loader import SkillLoader
@@ -104,6 +102,25 @@ class TestSkill(unittest.TestCase):
         track_1 = lib.search_songs_for_track('track one')
         self.assertEqual(len(track_1), 1)
         self.assertEqual(track_1[0].title, "Track one")
+
+    def test_parse_track_from_file_path(self):
+        method = self.skill.music_library._parse_track_from_file
+
+        mock_file = join(dirname(__file__), 'test_music', 'Artist 1',
+                         'Album 1', '02 Track 2')
+        test_untagged = method(mock_file, None)
+        self.assertEqual(test_untagged.path, mock_file)
+        self.assertEqual(test_untagged.title, "Track 2")
+        self.assertEqual(test_untagged.album, "Album 1")
+        self.assertEqual(test_untagged.artist, "Artist 1")
+
+        mp3_file = join(dirname(__file__), 'test_music', "Test_Track.mp3")
+        test_tagged = method(mp3_file, None)
+        self.assertEqual(test_tagged.path, mp3_file)
+        self.assertEqual(test_tagged.title, "Triple Stage Darkness")
+        self.assertEqual(test_tagged.album, "Theodore: An Alternative Music Sampler")
+        self.assertEqual(test_tagged.artist, "3rd Bass")
+        # self.assertEqual(test_tagged.genre, "Alternative")
 
     def test_download_demo_tracks(self):
         test_dir = join(dirname(__file__), "demo_test")
