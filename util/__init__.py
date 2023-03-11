@@ -210,6 +210,9 @@ class MusicLibrary:
         """
         album = basename(dirname(file))
         artist = basename(dirname(dirname(file)))
+        if 'music' in {album.lower(), artist.lower()}:
+            LOG.warning(f"{file} not in an expected directory structure")
+            album, artist = None, None
         try:
             track, title = splitext(basename(file))[0].split(' ', 1)
             if not track.isnumeric():
