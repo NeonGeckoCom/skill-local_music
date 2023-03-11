@@ -28,7 +28,7 @@
 
 import hashlib
 import pickle
-from typing import List
+from typing import List, Optional
 import ovos_ocp_files_plugin
 
 from dataclasses import dataclass
@@ -59,7 +59,7 @@ class MusicLibrary:
         :param library_path: path to scan for music files
         :param cache_path: path to cache directory for library and temp files
         """
-        self.library_path = expanduser(library_path)
+        self.library_paths = [expanduser(library_path)]
         self.cache_path = expanduser(cache_path)
         if not isdir(self.cache_path):
             makedirs(self.cache_path)
@@ -108,8 +108,8 @@ class MusicLibrary:
                 if song.title and song.title.lower() in track.lower()]
 
     def update_library(self, lib_path: str = None):
-        lib_path = lib_path or self.library_path
-        LOG.debug(f"Starting library update of: {self.library_path}")
+        lib_path = lib_path or self.library_paths[0]
+        LOG.debug(f"Starting library update of: {lib_path}")
         for root, _, files in walk(lib_path):
             album_art = None
             if isfile(join(root, 'Folder.jpg')):
@@ -120,51 +120,78 @@ class MusicLibrary:
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
-                meta = None
-                try:
-                    meta = ovos_ocp_files_plugin.load(abs_path)
-                    image_bytes = meta.pictures[0].data if meta.pictures else None
-                    album = meta.tags['album'][0]
-                    artist = meta.tags['artist'][0]
-                    genre = meta.tags['genre'][0] if 'genre' in meta.tags \
-                        else None  # Handle missing genre tag
-                    title = meta.tags['title'][0]
-                    track_no = meta.tags['tracknumber'][0]
-                    duration_seconds = meta.streaminfo['duration']
-
-                    if image_bytes:
-                        filename = hashlib.md5(image_bytes).hexdigest()
-                        album_art = self._write_album_art(image_bytes,
-                                                          filename)
-
-                    if not isinstance(track_no, int):
-                        LOG.debug(f"Handling non-int track_no: {track_no}")
-                        if track_no.isnumeric():
-                            track_no = int(track_no)
-                        else:
-                            LOG.warning(f"Non-numeric track number: {track_no}")
-                            track_no = 0
-
-                    song = Track(abs_path, title, album, artist, genre,
-                                 album_art, duration_seconds * 1000,
-                                 track_no)
-                    LOG.debug(song)
-                    self._songs[abs_path] = song
-                except ovos_ocp_files_plugin.UnsupportedFormat:
-                    self._songs[abs_path] = self.song_from_file_path(abs_path,
-                                                                     album_art)
-                except Exception as e:
-                    LOG.exception(f"{abs_path} encountered error: {e}")
-                    if meta:
-                        LOG.info(f"tags={meta.tags}")
-                    self._songs[abs_path] = self.song_from_file_path(abs_path,
-                                                                     album_art)
+                self._songs[abs_path] = self._parse_track_from_file(abs_path,
+                                                                    album_art)
         LOG.debug("Updated Library")
         try:
             with open(self._db_file, 'wb') as f:
                 pickle.dump(self._songs, f)
         except Exception as e:
             LOG.exception(e)
+
+    def _parse_track_from_file(self, file_path: str, album_art: Optional[str]):
+        meta = None
+        try:
+            meta = ovos_ocp_files_plugin.load(file_path)
+            image_bytes = meta.pictures[0].data if meta.pictures else None
+            album = meta.tags['album'][0]
+            artist = meta.tags['artist'][0]
+            genre = meta.tags['genre'][0] if 'genre' in meta.tags \
+                else None  # Handle missing genre tag
+            title = meta.tags['title'][0]
+            track_no = meta.tags['tracknumber'][0]
+            duration_seconds = meta.streaminfo['duration']
+
+            if image_bytes:
+                filename = hashlib.md5(image_bytes).hexdigest()
+                album_art = self._write_album_art(image_bytes,
+                                                  filename)
+
+            if not isinstance(track_no, int):
+                LOG.debug(f"Handling non-int track_no: {track_no}")
+                if track_no.isnumeric():
+                    track_no = int(track_no)
+                else:
+                    if track_no.split('/')[0].isnumeric():
+                        LOG.debug(f"Parsing track_no as int:"
+                                  f" {track_no}")
+                        track_no = int(track_no.split('/')[0])
+                    else:
+                        LOG.warning(f"Non-numeric track number:"
+                                    f" {track_no}")
+                        track_no = 0
+
+            song = Track(file_path, title, album, artist, genre,
+                         album_art, duration_seconds * 1000, track_no)
+            LOG.debug(song)
+            return song
+        except ovos_ocp_files_plugin.UnsupportedFormat:
+            return self.song_from_file_path(file_path, album_art)
+        except KeyError as e:
+            LOG.error(e)
+            from id3parse import ID3
+            tag = ID3.from_file(file_path)
+            if tag:
+                data = dict()
+                for t in ('TPE1', 'TALB', 'TIT2', 'TRCK', 'TCON', 'TIME'):
+                    try:
+                        data[t] = tag.find_frame_by_name(t)
+                    except ValueError:
+                        LOG.debug(f"No tag: {t} for file: "
+                                  f"{basename(file_path)}")
+                        data[t] = None
+                if not data.get('TIT2'):
+                    return self.song_from_file_path(file_path, album_art)
+                return Track(file_path, data.get('TIT2'), data.get('TALB'),
+                             data.get('TPE1'), data.get('TCON'),
+                             data.get('TIME', 0) * 1000, data.get('TRCK'))
+            return self.song_from_file_path(file_path, album_art)
+
+        except Exception as e:
+            LOG.exception(f"{file_path} encountered error: {e}")
+            if meta:
+                LOG.info(f"tags={meta.tags}")
+            return self.song_from_file_path(file_path, album_art)
 
     def _write_album_art(self, image_bytes: bytes, filename: str):
         output_file = join(self.cache_path, f'{filename}.jpg')
@@ -183,6 +210,9 @@ class MusicLibrary:
         """
         album = basename(dirname(file))
         artist = basename(dirname(dirname(file)))
+        if 'music' in {album.lower(), artist.lower()}:
+            LOG.warning(f"{file} not in an expected directory structure")
+            album, artist = None, None
         try:
             track, title = splitext(basename(file))[0].split(' ', 1)
             if not track.isnumeric():

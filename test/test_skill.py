@@ -33,8 +33,6 @@ import pytest
 from os import mkdir
 from os.path import dirname, join, exists
 from mock import Mock
-from mycroft_bus_client import Message
-from ovos_plugin_common_play import MediaType
 from ovos_utils.messagebus import FakeBus
 
 from mycroft.skills.skill_loader import SkillLoader
@@ -81,13 +79,14 @@ class TestSkill(unittest.TestCase):
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
 
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
-        self.assertTrue(os.path.isdir(self.skill.music_dir))
+        self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
 
     def test_music_library(self):
         lib = self.skill.music_library
-        self.assertEqual(lib.library_path, self.skill.music_dir)
-        self.assertTrue(os.path.isdir(lib.library_path))
+        self.assertIn(self.skill.music_dir, lib.library_paths)
+        for lib_path in lib.library_paths:
+            self.assertTrue(os.path.isdir(lib_path), lib_path)
         self.assertTrue(os.path.isdir(lib.cache_path))
 
         # Test search methods
@@ -103,6 +102,31 @@ class TestSkill(unittest.TestCase):
         track_1 = lib.search_songs_for_track('track one')
         self.assertEqual(len(track_1), 1)
         self.assertEqual(track_1[0].title, "Track one")
+
+    def test_parse_track_from_file_path(self):
+        method = self.skill.music_library._parse_track_from_file
+
+        mock_file = join(dirname(__file__), 'test_music', 'Artist 1',
+                         'Album 1', '02 Track 2')
+        test_untagged = method(mock_file, None)
+        self.assertEqual(test_untagged.path, mock_file)
+        self.assertEqual(test_untagged.title, "Track 2")
+        self.assertEqual(test_untagged.album, "Album 1")
+        self.assertEqual(test_untagged.artist, "Artist 1")
+
+        mp3_file = join(dirname(__file__), 'test_music', "Test_Track.mp3")
+        test_tagged = method(mp3_file, None)
+        self.assertEqual(test_tagged.path, mp3_file)
+        self.assertEqual(test_tagged.title, "Triple Stage Darkness")
+        self.assertEqual(test_tagged.album, "Theodore: An Alternative Music Sampler")
+        self.assertEqual(test_tagged.artist, "3rd Bass")
+        # self.assertEqual(test_tagged.genre, "Alternative")
+
+    def test_download_demo_tracks(self):
+        test_dir = join(dirname(__file__), "demo_test")
+        self.skill._demo_dir = test_dir
+        self.skill._download_demo_tracks()
+        self.assertTrue(os.path.isdir(test_dir))
 
     # TODO: OCP Search method tests
 
