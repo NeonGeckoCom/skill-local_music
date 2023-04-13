@@ -23,9 +23,10 @@ Artist 2
 
 ## Examples
 - Play local music.
-- Play music by Daft Punk.
-- Play the black album.
-- Play Stressed Out by Twenty One Pilots.
+- Play music.
+
+> You may also request a specific song, album, or artist from your local music
+> collection.
 
 ## Contact Support
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)
