@@ -38,6 +38,7 @@ Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](h
 
 ## Category
 **Music**
+Daily
 
 ## Tags
 #music
