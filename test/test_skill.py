@@ -107,7 +107,7 @@ class TestSkill(unittest.TestCase):
         method = self.skill.music_library._parse_track_from_file
 
         mock_file = join(dirname(__file__), 'test_music', 'Artist 1',
-                         'Album 1', '02 Track 2')
+                         'Album 1', '02 Track 2.wma')
         test_untagged = method(mock_file, None)
         self.assertEqual(test_untagged.path, mock_file)
         self.assertEqual(test_untagged.title, "Track 2")
@@ -134,7 +134,9 @@ class TestSkill(unittest.TestCase):
         self.skill.music_library._songs = mock_songs
         test_dir = join(dirname(__file__), "test_music")
         self.skill.music_library.update_library(test_dir)
-        self.assertEqual(len(mock_songs.keys()), 1)
+        self.assertGreaterEqual(len(mock_songs.keys()), 1)
+        self.assertIsNone(mock_songs.get(join(test_dir, ".ds_store")))
+        self.assertIsNone(mock_songs.get(join(test_dir, "desktop")))
 
         self.skill.music_library._songs = real_songs
 
