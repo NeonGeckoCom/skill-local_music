@@ -117,6 +117,12 @@ class MusicLibrary:
             for file in files:
                 if file == 'Folder.jpg':
                     continue
+                elif file.startswith('.'):
+                    LOG.debug(f"Ignoring hidden file: {file}")
+                    continue
+                elif not splitext(file)[1]:
+                    LOG.debug(f"Ignoring file with no extension: {file}")
+                    continue
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")

@@ -128,6 +128,16 @@ class TestSkill(unittest.TestCase):
         self.skill._download_demo_tracks()
         self.assertTrue(os.path.isdir(test_dir))
 
+    def test_update_library(self):
+        real_songs = self.skill.music_library._songs
+        mock_songs = dict()
+        self.skill.music_library._songs = mock_songs
+        test_dir = join(dirname(__file__), "test_music")
+        self.skill.music_library.update_library(test_dir)
+        self.assertEqual(len(mock_songs.keys()), 1)
+
+        self.skill.music_library._songs = real_songs
+
     # TODO: OCP Search method tests
 
 
