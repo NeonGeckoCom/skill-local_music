@@ -148,7 +148,7 @@ class MusicLibrary:
                                                   filename)
 
             if not isinstance(track_no, int):
-                LOG.debug(f"Handling non-int track_no: {track_no}")
+                # LOG.debug(f"Handling non-int track_no: {track_no}")
                 if track_no.isnumeric():
                     track_no = int(track_no)
                 else:
