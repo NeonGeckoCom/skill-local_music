@@ -81,15 +81,15 @@ class MusicLibrary:
         """
         Get all songs by a particular artist
         """
-        return [song for song in self._songs.values()
-                if song.artist and song.artist.lower() in artist.lower()]
+        return [song for song in self._songs.values() if song.artist and
+                f" {song.artist.lower()} " in f" {artist.lower()} "]
 
     def search_songs_for_album(self, album: str) -> List[Track]:
         """
         Get all songs from a particular album
         """
-        tracks = [song for song in self._songs.values()
-                  if song.album and song.album.lower() in album.lower()]
+        tracks = [song for song in self._songs.values() if song.album and
+                  f" {song.album.lower()} " in f" {album.lower()} "]
         tracks.sort(key=lambda i: i.track)
         return tracks
 
@@ -97,15 +97,15 @@ class MusicLibrary:
         """
         Get all songs or a particular genre
         """
-        return [song for song in self._songs.values()
-                if song.genre and song.genre.lower() in genre.lower()]
+        return [song for song in self._songs.values() if song.genre and
+                f" {song.genre.lower()} " in f" {genre.lower()} "]
 
     def search_songs_for_track(self, track: str) -> List[Track]:
         """
         Search songs for a specific track
         """
-        return [song for song in self._songs.values()
-                if song.title and song.title.lower() in track.lower()]
+        return [song for song in self._songs.values() if song.title and
+                f" {song.title.lower()} " in f" {track.lower()} "]
 
     def update_library(self, lib_path: str = None):
         lib_path = lib_path or self.library_paths[0]

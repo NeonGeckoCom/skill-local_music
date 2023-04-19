@@ -93,6 +93,8 @@ class TestSkill(unittest.TestCase):
         self.assertEqual(lib.search_songs_for_artist("Artist 1 test"),
                          lib.search_songs_for_artist("artist 1"))
         self.assertEqual(len(lib.search_songs_for_artist('artist 1')), 4)
+        self.assertEqual(len(lib.search_songs_for_artist('artist')), 0)
+        self.assertEqual(len(lib.search_songs_for_artist('theartist 1')), 0)
 
         album_2 = lib.search_songs_for_album("album 2")
         self.assertEqual(len(album_2), 2)
