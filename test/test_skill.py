@@ -120,7 +120,7 @@ class TestSkill(unittest.TestCase):
         self.assertEqual(test_tagged.title, "Triple Stage Darkness")
         self.assertEqual(test_tagged.album, "Theodore: An Alternative Music Sampler")
         self.assertEqual(test_tagged.artist, "3rd Bass")
-        # self.assertEqual(test_tagged.genre, "Alternative")
+        self.assertEqual(test_tagged.genre, "Alternative")
 
     def test_download_demo_tracks(self):
         test_dir = join(dirname(__file__), "demo_test")

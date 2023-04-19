@@ -120,6 +120,7 @@ class MusicLibrary:
                 abs_path = join(root, file)
                 if abs_path in self._songs:
                     LOG.debug(f"Ignoring already indexed track: {abs_path}")
+                    continue
                 self._songs[abs_path] = self._parse_track_from_file(abs_path,
                                                                     album_art)
         LOG.debug("Updated Library")
@@ -130,7 +131,6 @@ class MusicLibrary:
             LOG.exception(e)
 
     def _parse_track_from_file(self, file_path: str, album_art: Optional[str]):
-        meta = None
         try:
             meta = ovos_ocp_files_plugin.load(file_path)
             image_bytes = meta.pictures[0].data if meta.pictures else None
@@ -160,38 +160,40 @@ class MusicLibrary:
                         LOG.warning(f"Non-numeric track number:"
                                     f" {track_no}")
                         track_no = 0
-
             song = Track(file_path, title, album, artist, genre,
                          album_art, duration_seconds * 1000, track_no)
             LOG.debug(song)
             return song
-        except ovos_ocp_files_plugin.UnsupportedFormat:
-            return self.song_from_file_path(file_path, album_art)
+        except ovos_ocp_files_plugin.UnsupportedFormat as e:
+            LOG.warning(f"{file_path} unsupported by files plugin: {e}")
+            track = self._parse_id3_tags(file_path)
         except KeyError as e:
             LOG.error(e)
-            from id3parse import ID3
-            tag = ID3.from_file(file_path)
-            if tag:
-                data = dict()
-                for t in ('TPE1', 'TALB', 'TIT2', 'TRCK', 'TCON', 'TIME'):
-                    try:
-                        data[t] = tag.find_frame_by_name(t)
-                    except ValueError:
-                        LOG.debug(f"No tag: {t} for file: "
-                                  f"{basename(file_path)}")
-                        data[t] = None
-                if not data.get('TIT2'):
-                    return self.song_from_file_path(file_path, album_art)
-                return Track(file_path, data.get('TIT2'), data.get('TALB'),
-                             data.get('TPE1'), data.get('TCON'),
-                             data.get('TIME', 0) * 1000, data.get('TRCK'))
-            return self.song_from_file_path(file_path, album_art)
+            track = self._parse_id3_tags(file_path)
 
         except Exception as e:
             LOG.exception(f"{file_path} encountered error: {e}")
-            if meta:
-                LOG.info(f"tags={meta.tags}")
-            return self.song_from_file_path(file_path, album_art)
+            track = self._parse_id3_tags(file_path)
+
+        return track or self.song_from_file_path(file_path, album_art)
+
+    def _parse_id3_tags(self, file_path):
+        from id3parse import ID3
+        tag = ID3.from_file(file_path)
+        if tag:
+            data = dict()
+            for t in ('TPE1', 'TALB', 'TIT2', 'TRCK', 'TCON', 'TIME'):
+                try:
+                    data[t] = tag.find_frame_by_name(t)
+                except ValueError:
+                    LOG.debug(f"No tag: {t} for file: "
+                              f"{basename(file_path)}")
+                    data[t] = None
+            if not data.get('TIT2'):
+                return None
+            return Track(file_path, data.get('TIT2'), data.get('TALB'),
+                         data.get('TPE1'), data.get('TCON'),
+                         data.get('TIME') or 0 * 1000, data.get('TRCK'))
 
     def _write_album_art(self, image_bytes: bytes, filename: str):
         output_file = join(self.cache_path, f'{filename}.jpg')
