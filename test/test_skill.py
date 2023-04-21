@@ -25,11 +25,10 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import os.path
 import shutil
 import unittest
-from typing import Union
-
 import pytest
 
 from os import mkdir
@@ -150,7 +149,8 @@ class TestSkill(unittest.TestCase):
             self.assertIsInstance(track.title, str)
             self.assertIsInstance(track.album, str)
             self.assertIsInstance(track.artist, str)
-            self.assertIsInstance(track.genre, Union[None, str])
+            if track.genre:
+                self.assertIsInstance(track.genre, str)
             self.assertIsInstance(track.duration_ms, int)
 
             track_2 = self.skill.music_library._parse_id3_tags(file)
