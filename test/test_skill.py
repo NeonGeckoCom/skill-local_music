@@ -28,6 +28,8 @@
 import os.path
 import shutil
 import unittest
+from typing import Union
+
 import pytest
 
 from os import mkdir
@@ -140,6 +142,27 @@ class TestSkill(unittest.TestCase):
         self.assertIsNone(mock_songs.get(join(test_dir, ".ds_store")))
         self.assertIsNone(mock_songs.get(join(test_dir, "desktop")))
 
+        id3_tested = False
+        for file in mock_songs.keys():
+            track = self.skill.music_library._parse_track_from_file(file)
+            # self.assertIsInstance(track, Track)
+            self.assertIsInstance(track.path, str)
+            self.assertIsInstance(track.title, str)
+            self.assertIsInstance(track.album, str)
+            self.assertIsInstance(track.artist, str)
+            self.assertIsInstance(track.genre, Union[None, str])
+            self.assertIsInstance(track.duration_ms, int)
+
+            track_2 = self.skill.music_library._parse_id3_tags(file)
+            if track_2:
+                id3_tested = True
+                self.assertEqual(track_2.path, track.path)
+                self.assertEqual(track_2.title, track.title)
+                self.assertEqual(track_2.album, track.album)
+                self.assertEqual(track_2.artist, track.artist)
+                self.assertEqual(track_2.genre, track.genre)
+                # self.assertEqual(track_2.duration_ms, track.duration_ms)
+        self.assertTrue(id3_tested)
         self.skill.music_library._songs = real_songs
 
     # TODO: OCP Search method tests
