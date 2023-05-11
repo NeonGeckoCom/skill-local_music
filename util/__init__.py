@@ -136,7 +136,8 @@ class MusicLibrary:
         except Exception as e:
             LOG.exception(e)
 
-    def _parse_track_from_file(self, file_path: str, album_art: Optional[str]):
+    def _parse_track_from_file(self, file_path: str,
+                               album_art: Optional[str] = None):
         try:
             meta = ovos_ocp_files_plugin.load(file_path)
             image_bytes = meta.pictures[0].data if meta.pictures else None
@@ -146,7 +147,7 @@ class MusicLibrary:
                 else None  # Handle missing genre tag
             title = meta.tags['title'][0]
             track_no = meta.tags['tracknumber'][0]
-            duration_seconds = meta.streaminfo['duration']
+            duration_seconds = round(meta.streaminfo['duration'])
 
             if image_bytes:
                 filename = hashlib.md5(image_bytes).hexdigest()
@@ -183,23 +184,25 @@ class MusicLibrary:
 
         return track or self.song_from_file_path(file_path, album_art)
 
-    def _parse_id3_tags(self, file_path):
+    def _parse_id3_tags(self, file_path: str):
         from id3parse import ID3
         tag = ID3.from_file(file_path)
         if tag:
             data = dict()
-            for t in ('TPE1', 'TALB', 'TIT2', 'TRCK', 'TCON', 'TIME'):
+            for t in ('TPE1', 'TALB', 'TIT2', 'TRCK', 'TCON', 'TLEN'):
                 try:
-                    data[t] = tag.find_frame_by_name(t)
+                    data[t] = tag.find_frame_by_name(t).text
                 except ValueError:
                     LOG.debug(f"No tag: {t} for file: "
                               f"{basename(file_path)}")
                     data[t] = None
             if not data.get('TIT2'):
                 return None
+            # TLEN is unreliable for track length, so let the player decide len
             return Track(file_path, data.get('TIT2'), data.get('TALB'),
                          data.get('TPE1'), data.get('TCON'),
-                         data.get('TIME') or 0 * 1000, data.get('TRCK'))
+                         # duration_ms=round(float(data.get('TLEN') or 0)),
+                         track=data.get('TRCK'))
 
     def _write_album_art(self, image_bytes: bytes, filename: str):
         output_file = join(self.cache_path, f'{filename}.jpg')
