@@ -25,7 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from os import makedirs
+
 from typing import List
 from os.path import join, dirname, expanduser, isdir
 from random import sample
@@ -42,8 +42,8 @@ from .util import MusicLibrary, Track
 
 
 class LocalMusicSkill(OVOSCommonPlaybackSkill):
-    def __init__(self):
-        super(LocalMusicSkill, self).__init__()
+    def __init__(self, **kwargs):
+        OVOSCommonPlaybackSkill.__init__(self, **kwargs)
         self.supported_media = [MediaType.MUSIC,
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
@@ -81,6 +81,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                                self.file_system.path)
         return self._music_library
 
+    # TODO: Move to __init__ after ovos-workshop stable release
     def initialize(self):
         # TODO: add intent to update library?
         if self.music_dir and isdir(self.music_dir):
@@ -157,7 +158,6 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         return self._tracks_to_search_results(tracks, score)
 
     def _tracks_to_search_results(self, tracks: List[Track], score: int = 20):
-        # LOG.debug(tracks)
         # TODO: Lower confidence if path is in demo dir
         tracks = [{'media_type': MediaType.MUSIC,
                    'playback': PlaybackType.AUDIO,
@@ -168,13 +168,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                    'artist': track.artist,
                    'length': track.duration_ms,
                    'match_confidence': score} for track in tracks]
-        # LOG.debug(tracks)
         return tracks
 
     def _download_demo_tracks(self):
         from ovos_skill_installer import download_extract_zip
         download_extract_zip(self.demo_url, self._demo_dir)
-
-
-def create_skill():
-    return LocalMusicSkill()
