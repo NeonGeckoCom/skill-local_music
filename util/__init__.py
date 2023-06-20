@@ -28,6 +28,7 @@
 
 import hashlib
 import pickle
+from threading import RLock
 from typing import List, Optional
 import ovos_ocp_files_plugin
 
@@ -59,19 +60,21 @@ class MusicLibrary:
         :param library_path: path to scan for music files
         :param cache_path: path to cache directory for library and temp files
         """
+        self._update_lock = RLock()
         self.library_paths = [expanduser(library_path)]
         self.cache_path = expanduser(cache_path)
         if not isdir(self.cache_path):
             makedirs(self.cache_path)
         self._songs = dict()
         self._db_file = join(self.cache_path, "library.pickle")
-        try:
-            if isfile(self._db_file):
-                with open(self._db_file, 'rb') as f:
-                    self._songs = pickle.load(f)
-        except Exception as e:
-            LOG.exception(e)
-            remove(self._db_file)
+        with self._update_lock:
+            try:
+                if isfile(self._db_file):
+                    with open(self._db_file, 'rb') as f:
+                        self._songs = pickle.load(f)
+            except Exception as e:
+                LOG.exception(e)
+                remove(self._db_file)
 
     @property
     def all_songs(self):
@@ -124,17 +127,19 @@ class MusicLibrary:
                     LOG.debug(f"Ignoring file with no extension: {file}")
                     continue
                 abs_path = join(root, file)
-                if abs_path in self._songs:
-                    LOG.debug(f"Ignoring already indexed track: {abs_path}")
-                    continue
-                self._songs[abs_path] = self._parse_track_from_file(abs_path,
-                                                                    album_art)
+                with self._update_lock:
+                    if abs_path in self._songs:
+                        LOG.debug(f"Ignoring already indexed track: {abs_path}")
+                        continue
+                    self._songs[abs_path] = \
+                        self._parse_track_from_file(abs_path, album_art)
         LOG.debug("Updated Library")
-        try:
-            with open(self._db_file, 'wb') as f:
-                pickle.dump(self._songs, f)
-        except Exception as e:
-            LOG.exception(e)
+        with self._update_lock:
+            try:
+                with open(self._db_file, 'wb') as f:
+                    pickle.dump(self._songs, f)
+            except Exception as e:
+                LOG.exception(e)
 
     def _parse_track_from_file(self, file_path: str,
                                album_art: Optional[str] = None):

@@ -26,6 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from threading import Thread
 from typing import List
 from os.path import join, dirname, expanduser, isdir
 from random import sample
@@ -86,15 +87,17 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         # TODO: add intent to update library?
         if self.music_dir and isdir(self.music_dir):
             LOG.debug(f"Load configured directory: {self.music_dir}")
-            self.music_library.update_library(self.music_dir)
+            Thread(target=self.music_library.update_library,
+                   args=(self.music_dir,), daemon=True).start()
         user_dir = expanduser("~/Music")
         if isdir(user_dir):
             LOG.debug(f"Load default directory: {self.music_dir}")
-            self.music_library.update_library(user_dir)
+            Thread(target=self.music_library.update_library, args=(user_dir,),
+                   daemon=True).start()
         if self.demo_url and not isdir(self._demo_dir):
             LOG.info(f"Downloading Demo Music from: {self.demo_url}")
-            self._download_demo_tracks()
-        if isdir(self._demo_dir):
+            Thread(target=self._download_demo_tracks, daemon=True).start()
+        elif isdir(self._demo_dir):
             self.music_library.update_library(self._demo_dir)
 
     @ocp_search()
@@ -173,3 +176,4 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def _download_demo_tracks(self):
         from ovos_skill_installer import download_extract_zip
         download_extract_zip(self.demo_url, self._demo_dir)
+        self.music_library.update_library(self._demo_dir)
