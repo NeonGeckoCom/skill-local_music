@@ -1,12 +1,20 @@
 # Changelog
 
-## [0.3.0a1](https://github.com/NeonGeckoCom/skill-local_music/tree/0.3.0a1) (2023-04-21)
+## [0.3.1a2](https://github.com/NeonGeckoCom/skill-local_music/tree/0.3.1a2) (2023-06-20)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/0.2.0...0.3.0a1)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/0.3.1a1...0.3.1a2)
 
 **Merged pull requests:**
 
-- Update id3 tag parsing with added unit tests [\#31](https://github.com/NeonGeckoCom/skill-local_music/pull/31) ([NeonDaniel](https://github.com/NeonDaniel))
+- Threaded library init [\#34](https://github.com/NeonGeckoCom/skill-local_music/pull/34) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [0.3.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/0.3.1a1) (2023-06-15)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/0.3.0...0.3.1a1)
+
+**Merged pull requests:**
+
+- Deprecate `create_skill` method and update `__init__` for best practices [\#33](https://github.com/NeonGeckoCom/skill-local_music/pull/33) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
