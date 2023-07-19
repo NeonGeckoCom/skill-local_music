@@ -44,7 +44,6 @@ from .util import MusicLibrary, Track
 
 class LocalMusicSkill(OVOSCommonPlaybackSkill):
     def __init__(self, **kwargs):
-        OVOSCommonPlaybackSkill.__init__(self, **kwargs)
         self.supported_media = [MediaType.MUSIC,
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
@@ -52,6 +51,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
         self._demo_dir = join(expanduser(xdg_cache_home()), "neon",
                               "demo_music")
+        OVOSCommonPlaybackSkill.__init__(self, **kwargs)
 
     @classproperty
     def runtime_requirements(self):
