@@ -82,7 +82,10 @@ class TestSkill(unittest.TestCase):
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
         self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
-        self.skill.library_update_event.wait()
+        self.assertTrue(self.skill.library_update_event.wait())
+        # Ensure library reflects settings overrides
+        self.skill.update_library()
+        self.assertTrue(self.skill.library_update_event.wait())
 
     def test_music_library(self):
         lib = self.skill.music_library
