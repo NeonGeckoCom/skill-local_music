@@ -26,7 +26,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from threading import Thread
+from threading import Thread, Event
 from typing import List
 from os.path import join, dirname, expanduser, isdir
 from random import sample
@@ -47,6 +47,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         self.supported_media = [MediaType.MUSIC,
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
+        self.updated = Event()
         self._music_library = None
         self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
         self._demo_dir = join(expanduser(xdg_cache_home()), "neon",
@@ -85,23 +86,28 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     # TODO: Move to __init__ after ovos-workshop stable release
     def initialize(self):
         # TODO: add intent to update library?
+        Thread(target=self.update_library, daemon=True).start()
+
+    def update_library(self):
+        self.updated.clear()
         if self.music_dir and isdir(self.music_dir):
             LOG.debug(f"Load configured directory: {self.music_dir}")
-            Thread(target=self.music_library.update_library,
-                   args=(self.music_dir,), daemon=True).start()
+            self.music_library.update_library(self.music_dir)
         user_dir = expanduser("~/Music")
         if isdir(user_dir):
             LOG.debug(f"Load default directory: {self.music_dir}")
-            Thread(target=self.music_library.update_library, args=(user_dir,),
-                   daemon=True).start()
+            self.music_library.update_library(user_dir)
         if self.demo_url and not isdir(self._demo_dir):
             LOG.info(f"Downloading Demo Music from: {self.demo_url}")
-            Thread(target=self._download_demo_tracks, daemon=True).start()
+            self._download_demo_tracks()
         elif isdir(self._demo_dir):
             self.music_library.update_library(self._demo_dir)
+        self.updated.set()
 
     @ocp_search()
     def search_music(self, phrase, media_type=MediaType.GENERIC):
+        if not self.updated.wait(5):
+            LOG.warning("Library update in progress; results may be limited")
         results = self.search_artist(phrase, media_type) + \
             self.search_album(phrase, media_type) + \
             self.search_genre(phrase, media_type) + \
