@@ -28,7 +28,7 @@
 
 import hashlib
 import pickle
-from threading import RLock, Event
+from threading import RLock
 from typing import List, Optional
 import ovos_ocp_files_plugin
 

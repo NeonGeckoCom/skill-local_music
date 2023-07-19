@@ -47,7 +47,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         self.supported_media = [MediaType.MUSIC,
                                 MediaType.AUDIO,
                                 MediaType.GENERIC]
-        self.updated = Event()
+        self.library_update_event = Event()
         self._music_library = None
         self._image_url = join(dirname(__file__), 'ui/music-solid.svg')
         self._demo_dir = join(expanduser(xdg_cache_home()), "neon",
@@ -89,7 +89,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
         Thread(target=self.update_library, daemon=True).start()
 
     def update_library(self):
-        self.updated.clear()
+        self.library_update_event.clear()
         if self.music_dir and isdir(self.music_dir):
             LOG.debug(f"Load configured directory: {self.music_dir}")
             self.music_library.update_library(self.music_dir)
@@ -102,11 +102,11 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             self._download_demo_tracks()
         elif isdir(self._demo_dir):
             self.music_library.update_library(self._demo_dir)
-        self.updated.set()
+        self.library_update_event.set()
 
     @ocp_search()
     def search_music(self, phrase, media_type=MediaType.GENERIC):
-        if not self.updated.wait(5):
+        if not self.library_update_event.wait(5):
             LOG.warning("Library update in progress; results may be limited")
         results = self.search_artist(phrase, media_type) + \
             self.search_album(phrase, media_type) + \
