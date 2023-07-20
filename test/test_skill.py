@@ -82,6 +82,10 @@ class TestSkill(unittest.TestCase):
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
         self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
+        self.assertTrue(self.skill.library_update_event.wait())
+        # Ensure library reflects settings overrides
+        self.skill.update_library()
+        self.assertTrue(self.skill.library_update_event.wait())
 
     def test_music_library(self):
         lib = self.skill.music_library
@@ -140,7 +144,6 @@ class TestSkill(unittest.TestCase):
         self.assertGreaterEqual(len(mock_songs.keys()), 1)
         self.assertIsNone(mock_songs.get(join(test_dir, ".ds_store")))
         self.assertIsNone(mock_songs.get(join(test_dir, "desktop")))
-
         id3_tested = False
         for file in mock_songs.keys():
             track = self.skill.music_library._parse_track_from_file(file)
