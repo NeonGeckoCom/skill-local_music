@@ -27,7 +27,7 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from threading import Thread, Event
-from typing import List
+from typing import List, Optional
 from os.path import join, dirname, expanduser, isdir
 from random import sample
 
@@ -67,13 +67,14 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                                    no_gui_fallback=True)
 
     @property
-    def demo_url(self):
-        default_url = "https://2222.us/app/files/neon_music/music.zip"
-        return self.settings.get("demo_url", default_url)
+    def demo_url(self) -> Optional[str]:
+        # default_url = "https://2222.us/app/files/neon_music/music.zip"
+        return self.settings.get("demo_url")
 
     @property
-    def music_dir(self):
-        return expanduser(self.settings.get('music_dir') or "/media")
+    def music_dir(self) -> str:
+        # default_path = "/media"
+        return expanduser(self.settings.get('music_dir', ""))
 
     @property
     def music_library(self):

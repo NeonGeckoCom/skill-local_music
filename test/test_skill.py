@@ -32,7 +32,7 @@ import unittest
 import pytest
 
 from os import mkdir
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, isfile
 from mock import Mock
 from ovos_utils.messagebus import FakeBus
 
@@ -68,6 +68,7 @@ class TestSkill(unittest.TestCase):
         cls.skill.speak_dialog = Mock()
 
     def setUp(self):
+        self.assertTrue(self.skill.library_update_event.wait(30))
         self.skill.speak.reset_mock()
         self.skill.speak_dialog.reset_mock()
 
@@ -78,7 +79,8 @@ class TestSkill(unittest.TestCase):
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
-
+        self.skill.settings["demo_url"] = \
+            "https://2222.us/app/files/neon_music/music.zip"
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
         self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
@@ -125,12 +127,15 @@ class TestSkill(unittest.TestCase):
         test_tagged = method(mp3_file, None)
         self.assertEqual(test_tagged.path, mp3_file)
         self.assertEqual(test_tagged.title, "Triple Stage Darkness")
-        self.assertEqual(test_tagged.album, "Theodore: An Alternative Music Sampler")
+        self.assertEqual(test_tagged.album,
+                         "Theodore: An Alternative Music Sampler")
         self.assertEqual(test_tagged.artist, "3rd Bass")
         self.assertEqual(test_tagged.genre, "Alternative")
 
     def test_download_demo_tracks(self):
         test_dir = join(dirname(__file__), "demo_test")
+        self.skill.settings["demo_url"] = \
+            "https://2222.us/app/files/neon_music/music.zip"
         self.skill._demo_dir = test_dir
         self.skill._download_demo_tracks()
         self.assertTrue(os.path.isdir(test_dir))
@@ -168,6 +173,31 @@ class TestSkill(unittest.TestCase):
         self.assertTrue(id3_tested)
         self.skill.music_library._songs = real_songs
 
+    def test_demo_music(self):
+        real_songs = self.skill.music_library._songs
+        real_paths = self.skill.music_library.library_paths
+        self.skill.music_library.library_paths = []
+        self.skill.music_library._songs = dict()
+        self.assertEqual(self.skill.music_library._songs, dict())
+        self.assertEqual(self.skill.music_library.all_songs, [])
+        test_dir = join(dirname(__file__), "demo_test")
+        self.skill.music_library.update_library(test_dir)
+
+        self.assertEqual(len(self.skill.music_library._songs), 30)
+        for track in self.skill.music_library.all_songs:
+            # self.assertIsInstance(track.album, str, track.path)
+            self.assertIsInstance(track.artist, str, track.path)
+            # self.assertIsInstance(track.artwork, str, track.path)
+            self.assertIsInstance(track.duration_ms, int, track.path)
+            self.assertIsInstance(track.genre, str, track.path)
+            self.assertIsInstance(track.title, str, track.path)
+            self.assertIsNotNone(track.title, track.path)
+            # self.assertIsInstance(track.track, int, track.path)
+            # self.assertTrue(isfile(track.artwork), track.path)
+            self.assertTrue(isfile(track.path), track.path)
+
+        self.skill.music_library.library_paths = real_paths
+        self.skill.music_library._songs = real_songs
     # TODO: OCP Search method tests
 
 
