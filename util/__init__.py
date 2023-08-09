@@ -61,7 +61,7 @@ class MusicLibrary:
         :param cache_path: path to cache directory for library and temp files
         """
         # Hidden files (starting with `.`) are always ignored
-        self._ignored_files = ("desktop.ini", "desktop")
+        self._ignored_files = ("desktop.ini", "desktop", "Attribution.pdf")
         self._update_lock = RLock()
         self.library_paths = [expanduser(library_path)]
         self.cache_path = expanduser(cache_path)
