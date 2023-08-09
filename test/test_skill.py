@@ -32,7 +32,7 @@ import unittest
 import pytest
 
 from os import mkdir
-from os.path import dirname, join, exists
+from os.path import dirname, join, exists, isfile
 from mock import Mock
 from ovos_utils.messagebus import FakeBus
 
@@ -68,6 +68,7 @@ class TestSkill(unittest.TestCase):
         cls.skill.speak_dialog = Mock()
 
     def setUp(self):
+        self.assertTrue(self.skill.library_update_event.wait(30))
         self.skill.speak.reset_mock()
         self.skill.speak_dialog.reset_mock()
 
@@ -168,6 +169,29 @@ class TestSkill(unittest.TestCase):
         self.assertTrue(id3_tested)
         self.skill.music_library._songs = real_songs
 
+    def test_demo_music(self):
+        real_songs = self.skill.music_library._songs
+        self.skill.music_library.library_paths = []
+        self.skill.music_library._songs = dict()
+        self.assertEqual(self.skill.music_library._songs, dict())
+        self.assertEqual(self.skill.music_library.all_songs, [])
+        test_dir = join(dirname(__file__), "demo_test")
+        self.skill.music_library.update_library(test_dir)
+
+        self.assertEqual(len(self.skill.music_library._songs), 30)
+        for track in self.skill.music_library.all_songs:
+            # self.assertIsInstance(track.album, str, track.path)
+            self.assertIsInstance(track.artist, str, track.path)
+            # self.assertIsInstance(track.artwork, str, track.path)
+            self.assertIsInstance(track.duration_ms, int, track.path)
+            self.assertIsInstance(track.genre, str, track.path)
+            self.assertIsInstance(track.title, str, track.path)
+            self.assertIsNotNone(track.title, track.path)
+            # self.assertIsInstance(track.track, int, track.path)
+            # self.assertTrue(isfile(track.artwork), track.path)
+            self.assertTrue(isfile(track.path), track.path)
+
+        self.skill.music_library._songs = real_songs
     # TODO: OCP Search method tests
 
 

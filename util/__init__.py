@@ -60,6 +60,8 @@ class MusicLibrary:
         :param library_path: path to scan for music files
         :param cache_path: path to cache directory for library and temp files
         """
+        # Hidden files (starting with `.`) are always ignored
+        self._ignored_files = ("desktop.ini", "desktop")
         self._update_lock = RLock()
         self.library_paths = [expanduser(library_path)]
         self.cache_path = expanduser(cache_path)
@@ -122,6 +124,9 @@ class MusicLibrary:
                     continue
                 elif file.startswith('.'):
                     LOG.debug(f"Ignoring hidden file: {file}")
+                    continue
+                elif file in self._ignored_files:
+                    LOG.debug(f"Ignoring file: {file}")
                     continue
                 elif not splitext(file)[1]:
                     LOG.debug(f"Ignoring file with no extension: {file}")
