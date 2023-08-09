@@ -171,6 +171,7 @@ class TestSkill(unittest.TestCase):
 
     def test_demo_music(self):
         real_songs = self.skill.music_library._songs
+        real_paths = self.skill.music_library.library_paths
         self.skill.music_library.library_paths = []
         self.skill.music_library._songs = dict()
         self.assertEqual(self.skill.music_library._songs, dict())
@@ -191,6 +192,7 @@ class TestSkill(unittest.TestCase):
             # self.assertTrue(isfile(track.artwork), track.path)
             self.assertTrue(isfile(track.path), track.path)
 
+        self.skill.music_library.library_paths = real_paths
         self.skill.music_library._songs = real_songs
     # TODO: OCP Search method tests
 
