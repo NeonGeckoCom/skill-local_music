@@ -79,7 +79,8 @@ class TestSkill(unittest.TestCase):
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
-
+        self.skill.settings["demo_url"] = \
+            "https://2222.us/app/files/neon_music/music.zip"
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
         self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
@@ -126,12 +127,15 @@ class TestSkill(unittest.TestCase):
         test_tagged = method(mp3_file, None)
         self.assertEqual(test_tagged.path, mp3_file)
         self.assertEqual(test_tagged.title, "Triple Stage Darkness")
-        self.assertEqual(test_tagged.album, "Theodore: An Alternative Music Sampler")
+        self.assertEqual(test_tagged.album,
+                         "Theodore: An Alternative Music Sampler")
         self.assertEqual(test_tagged.artist, "3rd Bass")
         self.assertEqual(test_tagged.genre, "Alternative")
 
     def test_download_demo_tracks(self):
         test_dir = join(dirname(__file__), "demo_test")
+        self.skill.settings["demo_url"] = \
+            "https://2222.us/app/files/neon_music/music.zip"
         self.skill._demo_dir = test_dir
         self.skill._download_demo_tracks()
         self.assertTrue(os.path.isdir(test_dir))
