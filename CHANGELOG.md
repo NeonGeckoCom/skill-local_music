@@ -1,12 +1,12 @@
 # Changelog
 
-## [1.0.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/1.0.1a1) (2023-07-19)
+## [1.0.2a1](https://github.com/NeonGeckoCom/skill-local_music/tree/1.0.2a1) (2023-08-09)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/1.0.0...1.0.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/1.0.1...1.0.2a1)
 
 **Merged pull requests:**
 
-- Refactor init to resolve errors [\#36](https://github.com/NeonGeckoCom/skill-local_music/pull/36) ([NeonDaniel](https://github.com/NeonDaniel))
+- Updated default behvior and tests [\#38](https://github.com/NeonGeckoCom/skill-local_music/pull/38) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
