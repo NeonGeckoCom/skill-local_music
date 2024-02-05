@@ -39,7 +39,7 @@ from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.xdg_utils import xdg_cache_home
 
-from .util import MusicLibrary, Track
+from skill_local_music.util import MusicLibrary, Track
 
 
 class LocalMusicSkill(OVOSCommonPlaybackSkill):
