@@ -33,6 +33,12 @@ from neon_minerva.tests.skill_unit_test_base import SkillTestCase
 
 
 class TestSkillMethods(SkillTestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        SkillTestCase.setUpClass()
+        cls.skill.settings['music_dir'] = join(dirname(__file__), "test_music")
+        cls.skill.initialize()
+
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
