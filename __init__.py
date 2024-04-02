@@ -68,12 +68,10 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
 
     @property
     def demo_url(self) -> Optional[str]:
-        # default_url = "https://2222.us/app/files/neon_music/music.zip"
         return self.settings.get("demo_url")
 
     @property
     def music_dir(self) -> str:
-        # default_path = "/media"
         return expanduser(self.settings.get('music_dir') or "~/Music")
 
     @property
