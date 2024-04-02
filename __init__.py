@@ -74,7 +74,7 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
     @property
     def music_dir(self) -> str:
         # default_path = "/media"
-        return expanduser(self.settings.get('music_dir', ""))
+        return expanduser(self.settings.get('music_dir') or "~/Music")
 
     @property
     def music_library(self):
