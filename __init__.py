@@ -39,7 +39,7 @@ from ovos_utils.log import LOG
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.xdg_utils import xdg_cache_home
 
-from .util import MusicLibrary, Track
+from skill_local_music.util import MusicLibrary, Track
 
 
 class LocalMusicSkill(OVOSCommonPlaybackSkill):
@@ -68,13 +68,11 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
 
     @property
     def demo_url(self) -> Optional[str]:
-        # default_url = "https://2222.us/app/files/neon_music/music.zip"
         return self.settings.get("demo_url")
 
     @property
     def music_dir(self) -> str:
-        # default_path = "/media"
-        return expanduser(self.settings.get('music_dir', ""))
+        return expanduser(self.settings.get('music_dir') or "~/Music")
 
     @property
     def music_library(self):

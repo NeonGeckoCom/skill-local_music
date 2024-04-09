@@ -63,7 +63,9 @@ class MusicLibrary:
         # Hidden files (starting with `.`) are always ignored
         self._ignored_files = ("desktop.ini", "desktop", "Attribution.pdf")
         self._update_lock = RLock()
-        self.library_paths = [expanduser(library_path)]
+        library_path = expanduser(library_path)
+        assert library_path is not None
+        self.library_paths = [library_path]
         self.cache_path = expanduser(cache_path)
         if not isdir(self.cache_path):
             makedirs(self.cache_path)

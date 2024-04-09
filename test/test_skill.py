@@ -26,55 +26,18 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import os.path
-import shutil
-import unittest
 import pytest
 
-from os import mkdir
-from os.path import dirname, join, exists, isfile
-from mock import Mock
-from ovos_utils.messagebus import FakeBus
-
-from mycroft.skills.skill_loader import SkillLoader
+from os.path import dirname, join, isfile, isdir
+from neon_minerva.tests.skill_unit_test_base import SkillTestCase
 
 
-class TestSkill(unittest.TestCase):
-
+class TestSkillMethods(SkillTestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        bus = FakeBus()
-        bus.run_in_thread()
-        skill_loader = SkillLoader(bus, dirname(dirname(__file__)))
-        skill_loader.load()
-        cls.skill = skill_loader.instance
-
-        # Define a directory to use for testing
-        cls.test_fs = join(dirname(__file__), "skill_fs")
-        if not exists(cls.test_fs):
-            mkdir(cls.test_fs)
-
-        # Override the configuration and fs paths to use the test directory
-        cls.skill.settings_write_path = cls.test_fs
-        cls.skill.file_system.path = cls.test_fs
-        cls.skill._init_settings()
-
-        cls.skill._music_library = None  # Patch initialize call during load
+        SkillTestCase.setUpClass()
         cls.skill.settings['music_dir'] = join(dirname(__file__), "test_music")
         cls.skill.initialize()
-
-        # Override speak and speak_dialog to test passed arguments
-        cls.skill.speak = Mock()
-        cls.skill.speak_dialog = Mock()
-
-    def setUp(self):
-        self.assertTrue(self.skill.library_update_event.wait(30))
-        self.skill.speak.reset_mock()
-        self.skill.speak_dialog.reset_mock()
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        shutil.rmtree(cls.test_fs)
 
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
@@ -93,8 +56,8 @@ class TestSkill(unittest.TestCase):
         lib = self.skill.music_library
         self.assertIn(self.skill.music_dir, lib.library_paths)
         for lib_path in lib.library_paths:
-            self.assertTrue(os.path.isdir(lib_path), lib_path)
-        self.assertTrue(os.path.isdir(lib.cache_path))
+            self.assertTrue(isdir(lib_path), lib_path)
+        self.assertTrue(isdir(lib.cache_path))
 
         # Test search methods
         self.assertEqual(lib.search_songs_for_artist("Artist 1 test"),
@@ -138,7 +101,7 @@ class TestSkill(unittest.TestCase):
             "https://2222.us/app/files/neon_music/music.zip"
         self.skill._demo_dir = test_dir
         self.skill._download_demo_tracks()
-        self.assertTrue(os.path.isdir(test_dir))
+        self.assertTrue(isdir(test_dir))
 
     def test_update_library(self):
         real_songs = self.skill.music_library._songs
