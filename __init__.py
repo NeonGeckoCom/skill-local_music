@@ -118,7 +118,8 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             else:
                 LOG.debug("No media type requested")
             all_songs = self.music_library.all_songs
-            non_demo = [s for s in all_songs if not s.uri.startswith(self._demo_dir)]
+            non_demo = [s for s in all_songs
+                        if not s.path.startswith(self._demo_dir)]
             if non_demo:
                 LOG.debug("Using non-demo tracks")
                 all_songs = non_demo
