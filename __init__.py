@@ -118,11 +118,16 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             else:
                 LOG.debug("No media type requested")
             all_songs = self.music_library.all_songs
+            non_demo = [s for s in all_songs
+                        if not s.path.startswith(self._demo_dir)]
+            if non_demo:
+                LOG.debug("Using non-demo tracks")
+                all_songs = non_demo
             if len(all_songs) > 50:
                 all_songs = sample(self.music_library.all_songs, 50)
             results = self._tracks_to_search_results(all_songs, score)
-            LOG.debug(f"Returning all songs with score={score}")
-        LOG.info(f"Returning {len(results)} results")  # conf 65
+            LOG.info(f"Returning all songs with score={score}")
+        LOG.info(f"Returning {len(results)} results")
         return results
 
     def search_artist(self, phrase, media_type=MediaType.GENERIC) -> List[dict]:

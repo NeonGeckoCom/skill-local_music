@@ -81,7 +81,7 @@ class MusicLibrary:
                 remove(self._db_file)
 
     @property
-    def all_songs(self):
+    def all_songs(self) -> List[Track]:
         return list(self._songs.values())
 
     def search_songs_for_artist(self, artist: str) -> List[Track]:
