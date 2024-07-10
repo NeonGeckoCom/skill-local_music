@@ -1,24 +1,16 @@
 # Changelog
 
-## [2.0.1a2](https://github.com/NeonGeckoCom/skill-local_music/tree/2.0.1a2) (2024-04-03)
+## [3.0.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/3.0.1a1) (2024-05-20)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/2.0.1a1...2.0.1a2)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.0.0...3.0.1a1)
 
-**Closed issues:**
+**Fixed bugs:**
 
-- Home Music folder support [\#3](https://github.com/NeonGeckoCom/skill-local_music/issues/3)
-
-**Merged pull requests:**
-
-- Use XDG Music directory by default \(previously None\) [\#41](https://github.com/NeonGeckoCom/skill-local_music/pull/41) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [2.0.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/2.0.1a1) (2024-02-06)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/2.0.0...2.0.1a1)
+- \[BUG\] Demo music played instead of local music [\#43](https://github.com/NeonGeckoCom/skill-local_music/issues/43)
 
 **Merged pull requests:**
 
-- Support ovos-utils 0.1 [\#40](https://github.com/NeonGeckoCom/skill-local_music/pull/40) ([NeonDaniel](https://github.com/NeonDaniel))
+- Filter demo tracks from "local music" requests [\#44](https://github.com/NeonGeckoCom/skill-local_music/pull/44) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
