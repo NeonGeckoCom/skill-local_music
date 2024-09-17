@@ -28,16 +28,22 @@
 
 import pytest
 
+from tempfile import mkdtemp
 from os.path import dirname, join, isfile, isdir
+from os import environ
 from neon_minerva.tests.skill_unit_test_base import SkillTestCase
+
+environ.setdefault("TEST_SKILL_ENTRYPOINT", "skill-local_music.neongeckocom")
 
 
 class TestSkillMethods(SkillTestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        # Start with an empty music directory
+        environ["XDG_MUSIC_DIR"] = mkdtemp()
         SkillTestCase.setUpClass()
-        cls.skill.settings['music_dir'] = join(dirname(__file__), "test_music")
-        cls.skill.initialize()
+        cls.skill.music_dir = join(dirname(__file__), "test_music")
+        cls.skill.update_library()
 
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
