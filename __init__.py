@@ -25,7 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+import os
 from threading import Thread, Event
 from typing import List, Optional
 from os.path import join, dirname, expanduser, isdir
@@ -54,6 +54,9 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
                               "demo_music")
         OVOSCommonPlaybackSkill.__init__(self, **kwargs)
 
+        # TODO: add intent to update library?
+        Thread(target=self.update_library, daemon=True).start()
+
     @classproperty
     def runtime_requirements(self):
         return RuntimeRequirements(network_before_load=False,
@@ -72,7 +75,17 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
 
     @property
     def music_dir(self) -> str:
-        return expanduser(self.settings.get('music_dir') or "~/Music")
+        return expanduser(self.settings.get('music_dir') or \
+                          os.environ.get("XDG_MUSIC_DIR", "~/Music"))
+
+    @music_dir.setter
+    def music_dir(self, new_path: str):
+        new_path = expanduser(new_path)
+        if not isdir(new_path):
+            LOG.error(f"{new_path} is not a valid directory!")
+            return
+        self.settings['music_dir'] = new_path
+        self.settings.store()
 
     @property
     def music_library(self):
@@ -81,11 +94,6 @@ class LocalMusicSkill(OVOSCommonPlaybackSkill):
             self._music_library = MusicLibrary(self.music_dir,
                                                self.file_system.path)
         return self._music_library
-
-    # TODO: Move to __init__ after ovos-workshop stable release
-    def initialize(self):
-        # TODO: add intent to update library?
-        Thread(target=self.update_library, daemon=True).start()
 
     def update_library(self):
         self.library_update_event.clear()
