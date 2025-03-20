@@ -1,16 +1,32 @@
 # Changelog
 
-## [3.0.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/3.0.1a1) (2024-05-20)
+## [3.1.1a4](https://github.com/NeonGeckoCom/skill-local_music/tree/3.1.1a4) (2025-03-20)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.0.0...3.0.1a1)
-
-**Fixed bugs:**
-
-- \[BUG\] Demo music played instead of local music [\#43](https://github.com/NeonGeckoCom/skill-local_music/issues/43)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.1.1a3...3.1.1a4)
 
 **Merged pull requests:**
 
-- Filter demo tracks from "local music" requests [\#44](https://github.com/NeonGeckoCom/skill-local_music/pull/44) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update track parsing to resolve playback errors [\#50](https://github.com/NeonGeckoCom/skill-local_music/pull/50) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [3.1.1a3](https://github.com/NeonGeckoCom/skill-local_music/tree/3.1.1a3) (2025-03-11)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.1.1a2...3.1.1a3)
+
+**Merged pull requests:**
+
+- Update automation, gitignore, and license notices [\#49](https://github.com/NeonGeckoCom/skill-local_music/pull/49) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [3.1.1a2](https://github.com/NeonGeckoCom/skill-local_music/tree/3.1.1a2) (2025-03-11)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.1.1a1...3.1.1a2)
+
+## [3.1.1a1](https://github.com/NeonGeckoCom/skill-local_music/tree/3.1.1a1) (2024-09-17)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-local_music/compare/3.1.0...3.1.1a1)
+
+**Merged pull requests:**
+
+- Update OVOS depdendencies for 0.x compat [\#48](https://github.com/NeonGeckoCom/skill-local_music/pull/48) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
