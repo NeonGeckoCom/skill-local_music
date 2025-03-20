@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Framework
 # All trademark and other rights reserved by their respective owners
-# Copyright 2008-2022 Neongecko.com Inc.
+# Copyright 2008-2025 Neongecko.com Inc.
 # Contributors: Daniel McKnight, Guy Daniels, Elon Gasper, Richard Leeds,
 # Regina Bloomstine, Casimiro Ferreira, Andrii Pernatii, Kirill Hrymailo
 # BSD-3 License
@@ -61,7 +61,8 @@ class MusicLibrary:
         :param cache_path: path to cache directory for library and temp files
         """
         # Hidden files (starting with `.`) are always ignored
-        self._ignored_files = ("desktop.ini", "desktop", "Attribution.pdf")
+        self._ignored_files = ("desktop.ini", "desktop", "Attribution.pdf",
+                               "music.zip")
         self._update_lock = RLock()
         library_path = expanduser(library_path)
         assert library_path is not None

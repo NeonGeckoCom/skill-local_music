@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Framework
 # All trademark and other rights reserved by their respective owners
-# Copyright 2008-2022 Neongecko.com Inc.
+# Copyright 2008-2025 Neongecko.com Inc.
 # Contributors: Daniel McKnight, Guy Daniels, Elon Gasper, Richard Leeds,
 # Regina Bloomstine, Casimiro Ferreira, Andrii Pernatii, Kirill Hrymailo
 # BSD-3 License
@@ -28,22 +28,28 @@
 
 import pytest
 
+from tempfile import mkdtemp
 from os.path import dirname, join, isfile, isdir
+from os import environ
 from neon_minerva.tests.skill_unit_test_base import SkillTestCase
+
+environ.setdefault("TEST_SKILL_ENTRYPOINT", "skill-local_music.neongeckocom")
 
 
 class TestSkillMethods(SkillTestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        # Start with an empty music directory
+        environ["XDG_MUSIC_DIR"] = mkdtemp()
         SkillTestCase.setUpClass()
-        cls.skill.settings['music_dir'] = join(dirname(__file__), "test_music")
-        cls.skill.initialize()
+        cls.skill.music_dir = join(dirname(__file__), "test_music")
+        cls.skill.update_library()
 
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
         from ovos_workshop.skills.common_play import OVOSCommonPlaybackSkill
         self.skill.settings["demo_url"] = \
-            "https://2222.us/app/files/neon_music/music.zip"
+            "https://download.neonaiservices.com/media/music.zip"
         self.assertIsInstance(self.skill, OVOSCommonPlaybackSkill)
         self.assertIsInstance(self.skill.demo_url, str)
         self.assertIsNotNone(self.skill.music_library)
@@ -98,7 +104,7 @@ class TestSkillMethods(SkillTestCase):
     def test_download_demo_tracks(self):
         test_dir = join(dirname(__file__), "demo_test")
         self.skill.settings["demo_url"] = \
-            "https://2222.us/app/files/neon_music/music.zip"
+            "https://download.neonaiservices.com/media/music.zip"
         self.skill._demo_dir = test_dir
         self.skill._download_demo_tracks()
         self.assertTrue(isdir(test_dir))
