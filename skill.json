@@ -1,28 +1,46 @@
 {
-    "title": "Local Music",
-    "url": "https://github.com/NeonGeckoCom/skill-local_music",
+    "title": "neon-skill-local_music",
+    "icon": "https://freemusicarchive.org/legacy/fma-smaller.jpg",
     "summary": "[OCP](https://github.com/OpenVoiceOS/ovos-ocp-audio-plugin) skill to play media from local storage.",
-    "short_description": "[OCP](https://github.com/OpenVoiceOS/ovos-ocp-audio-plugin) skill to play media from local storage.",
     "description": "Search and play music saved to the local file system. By default, the contents of `/media` will be used, but this can be changed in skill settings. Tagged audio files will have image art and track info parsed from metadata, but you may also organize files in the following format to parse untagged files (i.e. `.wav` files). ``` Artist 1 | |- Album |  | |  |- 01 Song Title.wav |  |- Folder.jpg Artist 2 | |- Album 2 ... ```",
     "examples": [
         "Play local music.",
         "Play music."
     ],
-    "desktopFile": false,
-    "warning": "",
-    "systemDeps": false,
+    "credits": [
+        "Neongecko"
+    ],
+    "categories": [
+        "Music",
+        "Daily"
+    ],
+    "tags": [],
+    "category": "Music",
+    "package_name": "neon-skill-local_music",
+    "pip_spec": "neon-skill-local_music",
+    "license": "BSD-3-Clause",
+    "author": "Neongecko",
+    "version": "3.2.1a1",
+    "url": "https://github.com/NeonGeckoCom/skill-local_music",
+    "skill_id": "skill-local_music.neongeckocom=skill_local_music:LocalMusicSkill",
+    "skillname": "skill-local_music",
+    "authorname": "NeonGeckoCom",
+    "name": "neon-skill-local_music",
     "requirements": {
         "python": [
-            "id3parse~=0.1",
-            "ovos-ocp-files-plugin~=0.13",
-            "ovos-plugin-common-play~=0.0",
-            "ovos-skill-installer~=0.0.5",
             "ovos-workshop~=0.0,>=0.0.7",
-            "ovos_utils~=0.0, >=0.0.28"
+            "ovos-plugin-common-play~=0.0",
+            "ovos-ocp-files-plugin~=0.13",
+            "ovos_utils~=0.0, >=0.0.28",
+            "ovos-skill-installer~=0.0.5",
+            "id3parse~=0.1"
         ],
         "system": {},
         "skill": []
     },
+    "desktopFile": false,
+    "warning": "",
+    "systemDeps": false,
     "incompatible_skills": [],
     "platforms": [
         "i386",
@@ -32,25 +50,6 @@
         "arm"
     ],
     "branch": "master",
-    "license": "BSD-3-Clause",
-    "icon": "https://freemusicarchive.org/legacy/fma-smaller.jpg",
-    "category": "Music",
-    "categories": [
-        "Music",
-        "Daily"
-    ],
-    "tags": [
-        "music",
-        "NeonAI",
-        "NeonGecko Original",
-        "OCP",
-        "Common Play"
-    ],
-    "credits": [
-        "NeonGeckoCom",
-        "NeonDaniel"
-    ],
-    "skillname": "skill-local_music",
-    "authorname": "NeonGeckoCom",
-    "foldername": null
+    "foldername": null,
+    "short_description": "[OCP](https://github.com/OpenVoiceOS/ovos-ocp-audio-plugin) skill to play media from local storage."
 }
